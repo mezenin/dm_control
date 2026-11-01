@@ -2065,7 +2065,7 @@ pub fn scrawl_running() -> bool {
     false
 }
 
-/// Asks Scrawl's own app to quit, as "Use Hex for annotations" does.
+/// Asks Scrawl's own app to quit, as "Use DM Control for annotations" does.
 #[cfg(target_os = "macos")]
 pub fn quit_scrawl() {
     use objc2_app_kit::NSRunningApplication;

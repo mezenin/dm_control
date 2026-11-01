@@ -27,7 +27,7 @@ use color_eyre::eyre::eyre;
 use crate::app_settings::{AppSettings, LabsSettings};
 
 /// Where people send feedback on Labs features.
-pub const FEEDBACK_URL: &str = "https://github.com/anomalyco/hex/issues/new";
+pub const FEEDBACK_URL: &str = "https://github.com/mezenin/dm_control/issues/new";
 
 /// Who a Labs feature is for.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -58,6 +58,7 @@ impl Audience {
 /// One Labs feature.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Feature {
+    VoiceControl,
     Meetings,
     VoiceFilter,
     Playground,
@@ -89,7 +90,8 @@ pub enum Feature {
 }
 
 impl Feature {
-    pub const ALL: [Self; 28] = [
+    pub const ALL: [Self; 29] = [
+        Self::VoiceControl,
         Self::Meetings,
         Self::VoiceFilter,
         Self::Playground,
@@ -141,7 +143,8 @@ impl Feature {
     /// Who the feature is for. Every feature picks one.
     pub const fn audience(self) -> Audience {
         match self {
-            Self::Meetings
+            Self::VoiceControl
+            | Self::Meetings
             | Self::VoiceFilter
             | Self::Playground
             | Self::LiveText
@@ -186,6 +189,9 @@ impl Feature {
     /// The feature `hex settings` key `key` switches (its toggle, or
     /// Unload when idle's minutes).
     pub fn for_settings_key(key: &str) -> Option<Self> {
+        if key.starts_with("voice_control.") {
+            return Some(Self::VoiceControl);
+        }
         if key == "labs.unload_idle_minutes" {
             return Some(Self::UnloadIdle);
         }
@@ -196,7 +202,7 @@ impl Feature {
 
     fn on_this_os(self) -> bool {
         match self {
-            Self::Meetings | Self::LiveChapters | Self::SubtitleExport => {
+            Self::VoiceControl | Self::Meetings | Self::LiveChapters | Self::SubtitleExport => {
                 cfg!(target_os = "macos")
             }
             Self::VoiceFilter => cfg!(any(target_os = "macos", target_os = "linux")),
@@ -229,6 +235,7 @@ impl Feature {
     /// The name `hex labs on|off` takes.
     pub const fn name(self) -> &'static str {
         match self {
+            Self::VoiceControl => "voice-control",
             Self::Meetings => "meetings",
             Self::VoiceFilter => "voice-filter",
             Self::Playground => "playground",
@@ -263,6 +270,7 @@ impl Feature {
     /// Its `hex settings` key.
     pub const fn settings_key(self) -> &'static str {
         match self {
+            Self::VoiceControl => "voice_control.enabled",
             Self::Meetings => "meetings.enabled",
             Self::VoiceFilter => "experimental.hex_microphone",
             Self::Playground => "labs.playground",
@@ -298,6 +306,7 @@ impl Feature {
     /// its translated row.
     pub const fn description(self) -> &'static str {
         match self {
+            Self::VoiceControl => "Local wake-phrase activation and multimedia commands (macOS)",
             Self::Meetings => "Record calls and keep transcripts (its own pane)",
             Self::VoiceFilter => {
                 "Hex Microphone virtual input and real-time voice filters (its own pane)"
@@ -372,6 +381,7 @@ impl Feature {
     /// Whether `settings` turn it on.
     pub fn on(self, settings: &AppSettings) -> bool {
         match self {
+            Self::VoiceControl => settings.voice_control.enabled,
             Self::Meetings => settings.meetings.enabled,
             Self::VoiceFilter => settings.experimental.hex_microphone,
             Self::Playground => settings.labs.playground,
@@ -405,6 +415,7 @@ impl Feature {
 
     pub fn set(self, settings: &mut AppSettings, on: bool) {
         match self {
+            Self::VoiceControl => settings.voice_control.enabled = on,
             Self::Meetings => settings.meetings.enabled = on,
             Self::VoiceFilter => settings.experimental.hex_microphone = on,
             Self::Playground => settings.labs.playground = on,

@@ -563,7 +563,7 @@ pub(super) fn error_notes(p: Paint, error: &str) -> [El; 2] {
     [
         note(
             "error-title",
-            tr("Hex could not apply this change."),
+            tr("DM Control could not apply this change."),
             p.danger(),
         ),
         note("error", error, p.muted()),
@@ -580,7 +580,7 @@ pub(super) fn listener_card(ui: &Ui, p: Paint) -> El {
         None => tr("Connecting…").to_string(),
     };
     // The key the desktop granted, which it may have changed in its own
-    // settings (#723), else the one Hex records.
+    // settings (#723), else the one DM Control records.
     let shortcut = match portal_grant(ui, ShortcutTarget::Dictation) {
         Some(DesktopGrantedShortcut {
             trigger: Some(trigger),
@@ -597,7 +597,10 @@ pub(super) fn listener_card(ui: &Ui, p: Paint) -> El {
             &shortcut,
         ),
         (true, ShortcutMode::Hold) => tr_fill("Ready anywhere · Hold {} to dictate", &shortcut),
-        (false, _) => tr_fill("Enable Hex to dictate into any app with {}", &shortcut),
+        (false, _) => tr_fill(
+            "Enable DM Control to dictate into any app with {}",
+            &shortcut,
+        ),
     };
     let failure = ui
         .view
@@ -674,7 +677,7 @@ pub(super) fn listener_card(ui: &Ui, p: Paint) -> El {
 }
 
 /// What a shortcuts portal granted for `target`, since the desktop decides
-/// which trigger Hex actually gets.
+/// which trigger DM Control actually gets.
 pub(super) fn granted(ui: &Ui, p: Paint, target: ShortcutTarget) -> Option<(String, rune::Color)> {
     Some(match portal_grant(ui, target)? {
         DesktopGrantedShortcut {
@@ -686,7 +689,7 @@ pub(super) fn granted(ui: &Ui, p: Paint, target: ShortcutTarget) -> Option<(Stri
             unconfirmed: true,
             ..
         } => (
-            tr("Your desktop assigns this key itself, so Hex can't confirm it").to_string(),
+            tr("Your desktop assigns this key itself, so DM Control can't confirm it").to_string(),
             p.muted(),
         ),
         DesktopGrantedShortcut { trigger: None, .. } => (
@@ -714,7 +717,7 @@ fn portal_grant(ui: &Ui, target: ShortcutTarget) -> Option<&DesktopGrantedShortc
     granted.iter().find(|shortcut| shortcut.name == name)
 }
 
-/// The key a shortcuts portal's desktop gave Cancel dictation. Hex suggests
+/// The key a shortcuts portal's desktop gave Cancel dictation. DM Control suggests
 /// none, so a key here comes from the desktop (#624), and it takes that key
 /// from every app.
 pub(super) fn cancel_grant(ui: &Ui) -> Option<&str> {
@@ -730,7 +733,7 @@ pub(super) fn cancel_grant(ui: &Ui) -> Option<&str> {
 /// Keys GNOME keeps for itself by default (window menu, input sources, app
 /// switching, the overview, screenshots, …), normalized as [`chord`] writes
 /// them. A portal shortcut on one is listed in GNOME Settings but never
-/// reaches Hex (#723).
+/// reaches DM Control (#723).
 const GNOME_KEYS: &[&str] = &[
     "alt+space",
     "super+space",
@@ -791,7 +794,7 @@ fn on_gnome() -> bool {
 }
 
 /// On GNOME, the note under `target`'s row when its key, the one GNOME
-/// granted or else the one Hex asks for, is one GNOME keeps for itself.
+/// granted or else the one DM Control asks for, is one GNOME keeps for itself.
 pub(super) fn gnome_clash_note(ui: &Ui, p: Paint, target: ShortcutTarget) -> Option<El> {
     if !on_gnome() {
         return None;
@@ -807,7 +810,7 @@ pub(super) fn gnome_clash_note(ui: &Ui, p: Paint, target: ShortcutTarget) -> Opt
         note(
             "gnome-clash",
             &tr_fill(
-                "GNOME uses {} itself, so it never reaches Hex. Record another shortcut, or change it in GNOME Settings › Keyboard › Keyboard Shortcuts.",
+                "GNOME uses {} itself, so it never reaches DM Control. Record another shortcut, or change it in GNOME Settings › Keyboard › Keyboard Shortcuts.",
                 &keys,
             ),
             p.danger(),
@@ -875,7 +878,7 @@ pub(super) fn desktop_commands(p: Paint) -> El {
             p,
             "raw-dictation",
             tr("Dictate without processing"),
-            tr("Paste your words as Hex heard them, skipping every step"),
+            tr("Paste your words as DM Control heard them, skipping every step"),
             &["hex dictation toggle --raw"],
         ),
     ];

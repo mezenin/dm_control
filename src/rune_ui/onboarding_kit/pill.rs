@@ -1,8 +1,8 @@
 //! The download pill and the inline language capsule button.
 //!
 //! [`pill`] carries [`PILL`] as a shared element, so the centerpiece loader on
-//! `"Setting up Hex"` flies smoothly up to the top bar during the demo and
-//! permissions, then back to centre stage for `"Hex is ready"`.
+//! `"Setting up DM Control"` flies smoothly up to the top bar during the demo and
+//! permissions, then back to centre stage for `"DM Control is ready"`.
 
 use rune::{Align, El, Spring, Transition, el, icon, row, text};
 

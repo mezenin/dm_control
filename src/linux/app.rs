@@ -200,7 +200,7 @@ impl HostHandle {
         }))
     }
 
-    /// The window's "Quit Hex": drains accepted work, then exits.
+    /// The window's "Quit DM Control": drains accepted work, then exits.
     pub(crate) fn quit(&self) {
         self.0.shutdown.store(true, Ordering::Release);
     }

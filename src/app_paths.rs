@@ -6,10 +6,9 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use color_eyre::eyre::{Result, eyre};
 use tracing_subscriber::fmt::writer::MakeWriterExt;
 
-/// Whether this is a local build (`HEX_LOCAL_BUILD=1`): made from a checkout
-/// for its owner's own machine, so it never checks for or offers updates.
+/// Personal-fork builds never check for or offer upstream updates.
 pub fn is_local_build() -> bool {
-    option_env!("HEX_LOCAL_BUILD") == Some("1")
+    true // Personal fork: upstream self-updates must never replace it.
 }
 
 /// Whether this is a macOS `Hex Test.app` build (`HEX_TEST_BUILD=1`), which
@@ -22,9 +21,9 @@ pub fn is_macos_test_build() -> bool {
 #[cfg(target_os = "macos")]
 pub fn app_name() -> &'static str {
     if is_macos_test_build() {
-        "Hex Test"
+        "DM Control Test"
     } else {
-        "Hex"
+        "DM Control"
     }
 }
 
@@ -35,9 +34,9 @@ pub fn support_dir() -> Result<PathBuf> {
     let data =
         dirs::data_dir().ok_or_else(|| eyre!("application data directory is unavailable"))?;
     let folder = if is_macos_test_build() {
-        "hex-test"
+        "dm-control-test"
     } else {
-        "hex"
+        "dm-control"
     };
     Ok(data.join(folder))
 }
@@ -98,15 +97,18 @@ pub fn personal_commands_workspace() -> Result<PathBuf> {
     user_config_dir()
 }
 
-/// The per-user config folder holding `hex.config.ts` on every OS: `~/.config/hex`, or `~/.config/hex-test` for `Hex Test.app`.
+/// The personal fork config folder: `~/.config/dm-control`, or `dm-control-test` for test builds.
 fn user_config_dir() -> Result<PathBuf> {
     let home = dirs::home_dir().ok_or_else(|| eyre!("home directory is unavailable"))?;
     Ok(user_config_dir_in(&home, is_macos_test_build()))
 }
 
 fn user_config_dir_in(home: &std::path::Path, test_build: bool) -> PathBuf {
-    home.join(".config")
-        .join(if test_build { "hex-test" } else { "hex" })
+    home.join(".config").join(if test_build {
+        "dm-control-test"
+    } else {
+        "dm-control"
+    })
 }
 
 #[cfg(test)]
@@ -118,11 +120,11 @@ mod tests {
         let home = std::path::Path::new("/Users/kit");
         assert_eq!(
             user_config_dir_in(home, false),
-            home.join(".config").join("hex")
+            home.join(".config").join("dm-control")
         );
         assert_eq!(
             user_config_dir_in(home, true),
-            home.join(".config").join("hex-test")
+            home.join(".config").join("dm-control-test")
         );
     }
 }

@@ -1,6 +1,6 @@
 //! "How the shortcut works": a modal from General's Shortcut mode row that
 //! shows Hold and Toggle side by side, and Double-tap to lock under Hold. Each
-//! choice draws a keycap and two lanes, the key above and what Hex records
+//! choice draws a keycap and two lanes, the key above and what DM Control records
 //! below, like a chart recorder: a pen holds still at the lanes' right end
 //! while the tape scrolls left under it, so each press draws on at the pen and
 //! slides away into a soft left edge. Picking a card is the setting.

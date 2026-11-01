@@ -1,4 +1,4 @@
-//! Hex's first run on the onboarding story, replayed by Labs' Run setup
+//! DM Control's first run on the onboarding story, replayed by Labs' Run setup
 //! again and `hex onboarding reset`; a new install still gets the tour.
 //! The window's tour ([`onboarding`](super::super::onboarding)) stays the state machine underneath: it starts the model download, asks
 //! for the permissions, relaunches when macOS needs it, watches the practice
@@ -29,13 +29,13 @@ const CHECK_EVERY: f64 = 0.25;
 
 /// What the real first run reports to the story's pages.
 pub(crate) struct Live {
-    /// Hex's own dictation records.
+    /// DM Control's own dictation records.
     pub(crate) listening: bool,
     /// The model download stopped with an error.
     pub(crate) failed: bool,
     pub(crate) microphone: ItemStatus,
     pub(crate) accessibility: ItemStatus,
-    /// Every permission is on and one applies only after Hex restarts.
+    /// Every permission is on and one applies only after DM Control restarts.
     pub(crate) restart: bool,
     pub(crate) practice: Practice,
     /// The model and language this run downloads.
@@ -167,7 +167,7 @@ pub(crate) fn restart(ui: &mut Ui, tx: &mut Tx) -> Result<(), String> {
     start(ui);
     tx.settle();
     if ui.first_run.is_none() {
-        return Err("Hex could not open onboarding".into());
+        return Err("DM Control could not open onboarding".into());
     }
     Ok(())
 }
@@ -277,7 +277,7 @@ pub(in crate::rune_ui) fn poll(ui: &mut Ui, tx: &mut Tx) -> bool {
         }
     }
 
-    // Hex's state arrives between frames, so the first run keeps polling.
+    // DM Control's state arrives between frames, so the first run keeps polling.
     advance_to(s, now, tx);
     tx.wake_after(FRAME);
     true
@@ -311,7 +311,7 @@ pub(super) fn press_continue(ui: &mut Ui) {
     }
 }
 
-/// "Start using Hex": closes the first run and the tour under it.
+/// "Start using DM Control": closes the first run and the tour under it.
 pub(super) fn finish(ui: &mut Ui) {
     let installed = ui.picker.selected_installed(&ui.settings);
     if ui.live()
@@ -363,7 +363,7 @@ pub(super) fn allow(item: SetupItem) -> impl Fn(&mut Ui) + 'static {
     move |ui: &mut Ui| onboarding::input(ui, Input::Grant(item))
 }
 
-/// "Restart Hex" once macOS applies a grant only after a restart.
+/// "Restart DM Control" once macOS applies a grant only after a restart.
 pub(super) fn restart_hex(ui: &mut Ui) {
     onboarding::input(ui, Input::Restart);
 }
@@ -386,7 +386,7 @@ pub(super) fn practice_changed(ui: &mut Ui, tx: &mut Tx) {
 pub(super) fn hint_copy(live: &Live) -> Option<&'static str> {
     Some(match live.practice {
         Practice::TooShort => "Hold the shortcut a little longer while you speak.",
-        Practice::NothingHeard => "Hex didn't hear any words. Try again a little louder.",
+        Practice::NothingHeard => "DM Control didn't hear any words. Try again a little louder.",
         Practice::Failed => "That didn't work. Try again.",
         Practice::Transcribing => "Typing what you said…",
         _ => return None,

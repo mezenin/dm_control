@@ -25,7 +25,7 @@ use crate::desktop::i18n::{tr, tr_fill, tr_named};
 use crate::desktop::onboarding::{PermissionAction, PermissionKind, PermissionWarning};
 
 /// A permission's row key, its name as System Settings lists it, and what
-/// Hex cannot do without it.
+/// DM Control cannot do without it.
 fn permission_copy(
     kind: PermissionKind,
     accessibility_renamed: bool,
@@ -34,12 +34,12 @@ fn permission_copy(
         PermissionKind::Microphone => (
             "permission-microphone",
             tr("Microphone"),
-            tr("Hex cannot record dictation until microphone access is restored."),
+            tr("DM Control cannot record dictation until microphone access is restored."),
         ),
         PermissionKind::Accessibility => (
             "permission-accessibility",
             accessibility_name(accessibility_renamed),
-            tr("Hex cannot recognize the dictation shortcut or paste into other apps."),
+            tr("DM Control cannot recognize the dictation shortcut or paste into other apps."),
         ),
         PermissionKind::SystemAudio => (
             "permission-system-audio",
@@ -82,11 +82,11 @@ pub(super) fn permissions_section(ui: &Ui, p: Paint) -> Option<El> {
                     p,
                     key,
                     name,
-                    Some(tr("Turns on when Hex restarts")),
+                    Some(tr("Turns on when DM Control restarts")),
                     button(
                         p,
                         &format!("{key}-restart"),
-                        tr("Restart Hex"),
+                        tr("Restart DM Control"),
                         ButtonKind::Secondary,
                         |ui: &mut Ui, _| {
                             ui.ask(PlatformRequest::Permission(PermissionAction::Restart))
@@ -97,7 +97,7 @@ pub(super) fn permissions_section(ui: &Ui, p: Paint) -> Option<El> {
             let stale =
                 warning.kind == PermissionKind::Accessibility && ui.platform.stale(warning.kind);
             let description = if stale {
-                tr("An older Hex entry can keep this off")
+                tr("An older DM Control entry can keep this off")
             } else {
                 description
             };
@@ -120,7 +120,7 @@ pub(super) fn permissions_section(ui: &Ui, p: Paint) -> Option<El> {
 }
 
 /// Records which untrusted permission rows are currently visible in the window
-/// so the macOS host clears retired Hex bundle IDs' stale TCC rows once in the
+/// so the macOS host clears retired DM Control bundle IDs' stale TCC rows once in the
 /// background when a row appears.
 pub(super) fn update_shown_permissions(ui: &mut Ui) {
     use crate::desktop::onboarding::{PermissionState, Step};
@@ -247,7 +247,7 @@ pub(super) fn meetings_settings(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> Vec<E
     let meetings = &ui.settings.meetings;
     let mut rows = vec![meetings_toggle(ui, p)];
     let mut more = Vec::new();
-    // Only macOS asks before Hex may hear the other participants.
+    // Only macOS asks before DM Control may hear the other participants.
     if meetings.enabled && ui.platform.caps.permissions {
         let permitted = ui.platform.system_audio;
         let stale = !permitted && ui.platform.stale(PermissionKind::SystemAudio);
@@ -259,7 +259,7 @@ pub(super) fn meetings_settings(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> Vec<E
             Some(if permitted {
                 tr("Captures the other participants' audio")
             } else if stale {
-                tr("An older Hex entry can keep this off")
+                tr("An older DM Control entry can keep this off")
             } else {
                 tr("Required to hear the other participants.")
             }),
@@ -405,11 +405,11 @@ fn retention_row(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> El {
         tr("Keep meetings"),
         match chosen {
             None => Some(tr(
-                "Audio, transcripts, notes, and Hex's Markdown copy move to the Trash. Meetings from before this setting stay until you choose",
+                "Audio, transcripts, notes, and DM Control's Markdown copy move to the Trash. Meetings from before this setting stay until you choose",
             )),
             Some(MeetingRetention::Forever) => None,
             Some(_) => Some(tr(
-                "Audio, transcripts, notes, and Hex's Markdown copy move to the Trash",
+                "Audio, transcripts, notes, and DM Control's Markdown copy move to the Trash",
             )),
         },
         control,
@@ -469,7 +469,7 @@ fn calendar_section(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> Option<El> {
             &icons::CALENDAR,
             tr("Calendar access is off"),
             Some(tr(
-                "Allow Hex under Privacy & Security › Calendars to get meeting reminders",
+                "Allow DM Control under Privacy & Security › Calendars to get meeting reminders",
             )),
             button(
                 p,

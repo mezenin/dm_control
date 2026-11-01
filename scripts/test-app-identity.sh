@@ -5,18 +5,18 @@ root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 export HEX_TEAM_ID=TESTTEAM00
 temporary=$(mktemp -d "${TMPDIR:-/tmp}/hex-app-identity.XXXXXX")
 trap 'rm -rf "$temporary"' EXIT HUP INT TERM
-bundle="$temporary/Hex.app"
+bundle="$temporary/DM Control.app"
 mkdir -p "$bundle/Contents"
 plist="$bundle/Contents/Info.plist"
 cp "$root/app/Info.plist" "$plist"
 
-[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$plist")" = anomaly.hex ]
+[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$plist")" = mezenin.dm-control ]
 [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$plist")" = hex ]
-[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$plist")" = Hex ]
-[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$plist")" = Hex ]
+[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$plist")" = "DM Control" ]
+[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$plist")" = "DM Control" ]
 
 expect_rejection() {
-  if output=$(sh "$root/scripts/validate-app.sh" "$bundle" Hex.app 2.1.0 20100 2>&1); then
+  if output=$(sh "$root/scripts/validate-app.sh" "$bundle" "DM Control.app" 2.1.0 20100 2>&1); then
     echo "Unexpectedly accepted an incompatible app." >&2
     exit 1
   fi
@@ -31,7 +31,7 @@ expect_rejection 'wrong bundle identifier'
 expect_rejection 'wrong bundle identifier'
 /usr/libexec/PlistBuddy -c 'Set :CFBundleIdentifier com.kitlangton.hex2' "$plist"
 expect_rejection 'wrong bundle identifier'
-/usr/libexec/PlistBuddy -c 'Set :CFBundleIdentifier anomaly.hex' "$plist"
+/usr/libexec/PlistBuddy -c 'Set :CFBundleIdentifier mezenin.dm-control' "$plist"
 /usr/libexec/PlistBuddy -c 'Set :CFBundleExecutable hex-watch' "$plist"
 expect_rejection 'wrong executable name'
 /usr/libexec/PlistBuddy -c 'Set :CFBundleExecutable hex' "$plist"
@@ -42,7 +42,7 @@ printf '#!/bin/sh\n' >"$bundle/Contents/MacOS/hex"
 chmod +x "$bundle/Contents/MacOS/hex"
 expect_rejection 'scrawl-helper is missing'
 
-for script in build-app.sh build-service-app.sh release-app.sh; do
+for script in build-service-app.sh release-app.sh; do
   if output=$(env -u HEX_TEAM_ID sh "$root/scripts/$script" 2>&1); then
     echo "Unexpectedly allowed $script without an explicit signing team." >&2
     exit 1

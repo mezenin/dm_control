@@ -383,6 +383,8 @@ pub fn listen(
         tracing::warn!(%error, "recording sounds are unavailable; continuing without feedback");
     }
     let mut microphone_policy = crate::app_settings::microphone_policy();
+    microphone_policy.release_while_idle &= !crate::voice_control::enabled();
+    let mut voice_control = None;
     let mut events = events;
     let input_monitor = InputMonitor::start()?;
     let context_monitor = ContextMonitor::start();
@@ -457,6 +459,18 @@ pub fn listen(
     tracing::info!(device = %input.device_name(), "dictation listener started");
 
     while !shutdown.load(Ordering::Relaxed) {
+        let voice_busy =
+            programmatic.is_some() || hotkeys.suppresses_recognition() || input.is_recording();
+        #[cfg(hex_capture)]
+        let voice_busy = voice_busy
+            || capture_host
+                .as_mut()
+                .is_some_and(|host| host.recording_since(&input).is_some());
+        crate::voice_control::Controller::reconcile(
+            &mut voice_control,
+            indicator.clone(),
+            voice_busy,
+        );
         #[cfg(hex_capture)]
         crate::capture_host::CaptureHost::reconcile(
             &mut capture_host,
@@ -844,7 +858,8 @@ pub fn listen(
                 application: context.application.clone(),
             })?;
         }
-        let next_microphone_policy = crate::app_settings::microphone_policy();
+        let mut next_microphone_policy = crate::app_settings::microphone_policy();
+        next_microphone_policy.release_while_idle &= !crate::voice_control::enabled();
         if next_microphone_policy.release_while_idle != microphone_policy.release_while_idle {
             input.set_release_while_idle(next_microphone_policy.release_while_idle);
         }
@@ -1175,6 +1190,13 @@ pub fn listen(
         // longer than a chunk lasts, and a backlog that overflows leaves the
         // meter only stale audio.
         for audio in input.recv_ready(Duration::from_millis(20))? {
+            if let Some(controller) = &mut voice_control {
+                controller.feed(
+                    &audio.samples,
+                    input.sample_rate(),
+                    audio.is_current(input.recognition_generation()),
+                );
+            }
             if let Some(active) = &mut programmatic {
                 if active.last_level.elapsed() >= Duration::from_millis(30) {
                     let _ = active.levels.try_send(level_for(&audio.samples));
@@ -1202,6 +1224,7 @@ pub fn listen(
     if let Some(host) = &mut capture_host {
         host.shutdown(&input);
     }
+    drop(voice_control);
     drop(personal_commands);
     events.emit(&VoiceEvent::State {
         timestamp_ms: now_ms(),

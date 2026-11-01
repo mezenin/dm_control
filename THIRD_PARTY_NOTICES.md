@@ -83,3 +83,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+## DM Control additions
+
+The voice-control addition uses [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) 2.0.1 (Apache-2.0), its published GigaSpeech English Zipformer 3.3M keyword-spotting model (Apache-2.0 as identified by the publisher), and [sentencepiece-rs](https://docs.rs/sentencepiece-rs/0.2.2/) 0.2.2 (Apache-2.0). The model files, provenance, hashes, and license are in `resources/voice-control/`. sherpa-onnx's native release includes ONNX Runtime and other dependencies under their respective upstream licenses.

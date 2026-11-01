@@ -4,7 +4,8 @@ version = "3.1.1"
 edition = "2024"
 default-run = "hex"
 license = "MIT"
-repository = "https://github.com/anomalyco/hex"
+repository = "https://github.com/mezenin/dm_control"
+description = "Personal Hex fork with local wake-phrase and multimedia control for macOS"
 
 # Crates imported from Scrawl live under `crates/`. Plain `cargo build` and
 # `cargo test` still select only Hex; pass `--workspace` or `-p` for the others.
@@ -75,6 +76,8 @@ unicode-segmentation = "1.13.3"
 url = "2.5.8"
 
 [target.'cfg(target_os = "macos")'.dependencies]
+sherpa-onnx = "=2.0.1"
+sentencepiece-rs = "=0.2.2"
 arboard = { version = "3.6.1", default-features = false }
 block2 = "0.6.2"
 core-graphics-types = "0.1.3"

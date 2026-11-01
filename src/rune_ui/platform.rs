@@ -47,7 +47,7 @@ pub(super) struct Capabilities {
     /// The dictation shortcut can pass through to other apps (Windows).
     pub(super) share_shortcut: bool,
     /// Hex Microphone is a driver to install (macOS). Elsewhere with the
-    /// Voice Filter, Hex creates it while the filter is on (a PipeWire
+    /// Voice Filter, DM Control creates it while the filter is on (a PipeWire
     /// virtual source on Linux).
     pub(super) hex_microphone: bool,
     /// The window sees dictation events, so the tour can end with a
@@ -226,12 +226,12 @@ impl NotesAvailability {
 pub(super) struct ScrawlView {
     /// Screen Recording, which a capture needs to record the screen.
     pub(super) screen_recording: bool,
-    /// Screen Recording is on in System Settings, but this Hex can't use it
+    /// Screen Recording is on in System Settings, but this DM Control can't use it
     /// until it restarts.
     pub(super) screen_needs_restart: bool,
     /// Scrawl's own app runs, so it owns the capture shortcut.
     pub(super) scrawl_running: bool,
-    /// Use Hex for annotations was pressed and Scrawl has not quit yet.
+    /// Use DM Control for annotations was pressed and Scrawl has not quit yet.
     pub(super) quitting_scrawl: bool,
     /// A captures folder that could not be revealed or chosen.
     pub(super) folder_error: Option<String>,
@@ -257,7 +257,7 @@ pub(super) enum ScrawlRequest {
     /// Read Screen Recording and Scrawl's app again now (the pane opened
     /// or the window became key), not at the next once-a-second refresh.
     Refresh,
-    /// Use Hex for annotations: ask Scrawl's own app to quit. Nothing else
+    /// Use DM Control for annotations: ask Scrawl's own app to quit. Nothing else
     /// ever quits it.
     QuitScrawl,
     RevealFolder,
@@ -279,7 +279,7 @@ pub(super) struct PlatformState {
     /// so their row offers `"Still grey? Fix it"`.
     pub(super) permissions_stale: Vec<PermissionKind>,
     /// Untrusted permissions whose row is visible right now, so the native
-    /// host clears retired Hex bundle IDs' stale TCC rows once in the
+    /// host clears retired DM Control bundle IDs' stale TCC rows once in the
     /// background.
     pub(super) permissions_shown: Vec<PermissionKind>,
     /// Screen & System Audio Recording, for meetings.
@@ -298,7 +298,7 @@ pub(super) struct PlatformState {
     pub(super) meeting_folder_error: Option<String>,
     /// The Calendar card's access, calendars, and next meetings.
     pub(super) calendar: CalendarView,
-    /// The tour's relaunch failed; the person must reopen Hex.
+    /// The tour's relaunch failed; the person must reopen DM Control.
     pub(super) relaunch_failed: bool,
     /// Developer builds: keeps Meetings available without opt-in in debug builds
     /// (`crate::DEVELOPER_FEATURES_ENABLED` on a native host).
@@ -560,7 +560,7 @@ pub(super) enum PlatformRequest {
     UninstallHexMicrophone,
     Meeting(MeetingRequest),
     Calendar(CalendarRequest),
-    /// Quit and reopen Hex so macOS applies new permissions.
+    /// Quit and reopen DM Control so macOS applies new permissions.
     Relaunch,
     /// Apply this tuning to the live Hex Microphone filter
     /// (`hex_microphone::update_tuned_config`). The pane has already saved

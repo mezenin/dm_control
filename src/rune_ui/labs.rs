@@ -116,7 +116,10 @@ pub(super) fn reveal(ui: &mut Ui, name: Option<&str>, tx: &mut Tx) {
             tx.scroll_center(row_key(feature));
             tx.wake_after(FLASH);
         }
-        None => tracing::warn!(feature = name, "a Labs link named no feature this Hex has"),
+        None => tracing::warn!(
+            feature = name,
+            "a Labs link named no feature this DM Control has"
+        ),
     }
 }
 
@@ -134,6 +137,7 @@ pub(super) fn poll_flash(ui: &mut Ui, now: std::time::Instant) -> bool {
 fn open(ui: &mut Ui, tx: &mut Tx) {
     ui.select_pane(Pane::General, tx);
     ui.labs_open = true;
+    ui.voice_phrase = rune::TextEdit::new(&ui.settings.voice_control.wake_phrase);
     tx.settle();
 }
 
@@ -160,6 +164,14 @@ fn rows(ui: &Ui) -> Vec<Row> {
         locked: false,
     };
     let mut rows = Vec::new();
+    if caps.os == super::platform::Os::Macos {
+        rows.push(row(
+            Feature::VoiceControl,
+            &WAVE,
+            tr("Voice control"),
+            tr("Say a wake phrase to control media, lights, and your Mac"),
+        ));
+    }
     if caps.meetings {
         rows.push(row(
             Feature::Meetings,
@@ -232,7 +244,7 @@ fn rows(ui: &Ui) -> Vec<Row> {
             Feature::PauseBrowser,
             &GLOBE,
             tr("Also pause the browser"),
-            tr("While dictating with Pause media: YouTube and other tabs, resumed only if Hex paused them"),
+            tr("While dictating with Pause media: YouTube and other tabs, resumed only if DM Control paused them"),
         ));
         rows.push(row(
             Feature::KeepOnClipboard,
@@ -365,6 +377,7 @@ fn rows(ui: &Ui) -> Vec<Row> {
 
 fn row_key(feature: Feature) -> &'static str {
     match feature {
+        Feature::VoiceControl => "lab-voice-control",
         Feature::Meetings => "lab-meetings",
         Feature::VoiceFilter => "lab-voice-filter",
         Feature::Playground => "lab-playground",
@@ -408,7 +421,7 @@ fn flip(ui: &mut Ui, feature: Feature) {
     ui.update(|settings| feature.set(settings, on));
     match feature {
         Feature::KeyboardModelSwitching => ui.open = None,
-        // Hex hears the browser through System Audio Recording.
+        // DM Control hears the browser through System Audio Recording.
         Feature::PauseBrowser if on && !ui.platform.system_audio => {
             ui.ask(super::platform::PlatformRequest::SystemAudio);
         }
@@ -448,11 +461,15 @@ pub(super) fn page(ui: &Ui, p: Paint) -> El {
         .child(feedback);
     let mut cards: Vec<CardRow> = Vec::new();
     for row in rows(ui).into_iter().filter(|row| row.feature.shipped()) {
+        let voice_control = row.feature == Feature::VoiceControl && row.on;
         let unload_idle = row.feature == Feature::UnloadIdle && row.on;
         let flashing = ui
             .lab_flash
             .is_some_and(|(feature, _)| feature == row.feature);
         cards.push(feature_row(p, row, flashing));
+        if voice_control {
+            cards.extend(voice_control_rows(ui, p));
+        }
         if unload_idle {
             cards.push(unload_after_row(ui, p));
         }
@@ -547,4 +564,63 @@ fn run_setup_row(p: Paint) -> CardRow {
         run,
     )
     .into()
+}
+
+fn voice_control_rows(ui: &Ui, p: Paint) -> Vec<CardRow> {
+    let input = rune_kit::TextInput::new(&ui.voice_phrase)
+        .width(Some(180.0))
+        .on_edit(|ui: &mut Ui| &mut ui.voice_phrase)
+        .build(p.k)
+        .key("wake-phrase-input");
+    let apply = rune_kit::Button::new(tr("Apply phrase"))
+        .variant(rune_kit::ButtonVariant::Ghost)
+        .control_size(rune_kit::ControlSize::Small)
+        .on_press(|ui: &mut Ui| {
+            let phrase = ui.voice_phrase.text.trim().to_string();
+            if let Err(error) = crate::voice_control::validate_phrase(&phrase) {
+                ui.error = Some(error.into());
+                return;
+            }
+            ui.update(|settings| settings.voice_control.wake_phrase = phrase);
+        })
+        .build(p.k)
+        .key("apply-wake-phrase");
+    vec![
+        controls::setting_row(
+            p,
+            "wake-phrase-row",
+            tr("Wake phrase"),
+            None,
+            row().gap(8.0).center_y().child(input).child(apply),
+        )
+        .into(),
+        controls::note(
+            "voice-control-language",
+            tr("Use 2–5 English words; commands can be Russian or English"),
+            p.muted(),
+        )
+        .mx(controls::METRICS.row_px)
+        .py(8.0)
+        .into(),
+        controls::note(
+            "voice-control-status",
+            &if ui.live() {
+                crate::voice_control::status()
+            } else {
+                format!("Waiting for “{}”", ui.settings.voice_control.wake_phrase)
+            },
+            p.muted(),
+        )
+        .mx(controls::METRICS.row_px)
+        .py(8.0)
+        .into(),
+        controls::note(
+            "voice-control-examples",
+            tr("Try: volume 50, pause, lights off, brightness 70, sleep computer"),
+            p.muted(),
+        )
+        .mx(controls::METRICS.row_px)
+        .py(8.0)
+        .into(),
+    ]
 }

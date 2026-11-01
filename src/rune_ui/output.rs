@@ -1,4 +1,4 @@
-//! The Output pane (the `modes` experiment): what Hex does to every
+//! The Output pane (the `modes` experiment): what DM Control does to every
 //! dictation before it pastes it, and what some apps use instead, read from
 //! `dictation_processing`. The pane only shows the steps; the person's agent
 //! changes them through `hex settings`, so the pane leads with Edit with
@@ -75,7 +75,7 @@ pub(super) fn poll(ui: &mut Ui, clock: f64, tx: &mut Tx) -> bool {
     changed
 }
 
-/// What runs a step: Hex itself, a script from the person's config, or
+/// What runs a step: DM Control itself, a script from the person's config, or
 /// OpenCode rewriting.
 #[derive(Clone, Copy, PartialEq)]
 enum Runner {
@@ -251,7 +251,7 @@ fn every_dictation(ui: &Ui, p: Paint, mode: &DictationMode) -> El {
         vec![
             note(
                 "no-steps",
-                tr("No steps yet. Hex pastes your words as it heard them"),
+                tr("No steps yet. DM Control pastes your words as it heard them"),
                 p.muted(),
             )
             .into(),
@@ -287,7 +287,7 @@ fn without_processing(ui: &Ui, p: Paint) -> El {
             &MIC,
             tr("Dictate without processing"),
             ShortcutTarget::RawDictation,
-            Some(tr("Pastes your words as Hex heard them")),
+            Some(tr("Pastes your words as DM Control heard them")),
         ),
     )
 }
@@ -360,7 +360,7 @@ fn step_row(p: Paint, key: &str, index: usize, step: &Step) -> El {
         .child(tag)
 }
 
-/// A sentence in, and what Hex would paste for it out.
+/// A sentence in, and what DM Control would paste for it out.
 fn try_card(ui: &Ui, p: Paint, mode: &DictationMode) -> El {
     let c = &p.k.c;
     let input = TextInput::new(&ui.output.trial)
@@ -371,7 +371,7 @@ fn try_card(ui: &Ui, p: Paint, mode: &DictationMode) -> El {
         .key("try-input");
     let trial = ui.output.trial.text.trim();
     let (result, ink) = if trial.is_empty() {
-        (tr("What Hex pastes").to_string(), p.faint())
+        (tr("What DM Control pastes").to_string(), p.faint())
     } else {
         (preview(mode, trial), p.text())
     };
@@ -462,7 +462,7 @@ fn app_row(ui: &Ui, p: Paint, index: usize, mode: &DictationMode, steps: &[Step]
         places.join(", ")
     };
     let summary = if steps.is_empty() {
-        tr("Pastes your words as Hex heard them").to_string()
+        tr("Pastes your words as DM Control heard them").to_string()
     } else {
         tr_fill(
             "Only: {}",
@@ -548,15 +548,15 @@ fn open_settings_file(ui: &mut Ui) {
 }
 
 /// What Edit with agent copies: where the steps live, their shape, the
-/// built-in ones, and how to change them while Hex runs, so any coding
+/// built-in ones, and how to change them while DM Control runs, so any coding
 /// agent can do it.
 fn agent_prompt() -> String {
     let path = crate::app_settings::path().map_or_else(
-        |_| "Hex's settings.json".into(),
+        |_| "DM Control's settings.json".into(),
         |path| path.display().to_string(),
     );
     format!(
-        "I use Hex for dictation. Change what it does to my words before it pastes them.\n\
+        "I use DM Control for dictation. Change what it does to my words before it pastes them.\n\
          \n\
          The steps live in {path} under `dictation_processing`:\n\
          - `default_mode` runs on every dictation: `replacements` (a list of \
@@ -571,8 +571,8 @@ fn agent_prompt() -> String {
          \n\
          Read the current value with `hex settings get dictation_processing`, then \
          change it with `hex settings set dictation_processing.default_mode '<json>'` \
-         (or `dictation_processing.modes`), which Hex applies at once. Don't edit the \
-         file while Hex runs.\n\
+         (or `dictation_processing.modes`), which DM Control applies at once. Don't edit the \
+         file while DM Control runs.\n\
          \n\
          What I want: "
     )
@@ -594,7 +594,7 @@ pub(super) fn fixture(ui: &mut Ui) {
     let global = &mut ui.settings.dictation_processing.default_mode;
     global.replacements = vec![
         pair("open code", "OpenCode"),
-        pair("hex app", "Hex"),
+        pair("hex app", "DM Control"),
         pair("um", ""),
     ];
     global.transformations = vec![

@@ -1,8 +1,8 @@
 {
   "fill": {
     "linear-gradient": [
-      "gray:0.19846,1.00000",
-      "srgb:0.00000,0.00000,0.00000,1.00000"
+      "srgb:0.98,0.98,0.99,1.00000",
+      "srgb:0.98,0.98,0.99,1.00000"
     ],
     "orientation": {
       "start": {
@@ -20,9 +20,9 @@
       "layers": [
         {
           "image-name": "Image.png",
-          "name": "Hex",
+          "name": "DM Control",
           "position": {
-            "scale": 0.44,
+            "scale": 1.0,
             "translation-in-points": [
               0,
               0
@@ -32,11 +32,11 @@
       ],
       "shadow": {
         "kind": "neutral",
-        "opacity": 0.5
+        "opacity": 0.0
       },
       "translucency": {
-        "enabled": true,
-        "value": 0.5
+        "enabled": false,
+        "value": 0.0
       }
     }
   ],

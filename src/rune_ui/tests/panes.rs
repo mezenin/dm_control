@@ -1380,7 +1380,7 @@ fn a_refused_microphone_points_to_system_settings() {
     assert!(
         shown
             .iter()
-            .any(|text| text == "Turned off earlier. Switch Hex on in System Settings.")
+            .any(|text| text == "Turned off earlier. Switch DM Control on in System Settings.")
     );
     tap(&mut rt, "setup-microphone/setup-grant-control/setup-grant");
     assert_eq!(
@@ -1400,7 +1400,7 @@ fn stale_permissions_offer_fix_it_and_reset_entries_across_panes() {
     assert!(
         shown
             .iter()
-            .any(|text| text == "An older Hex entry can keep this off")
+            .any(|text| text == "An older DM Control entry can keep this off")
     );
     tap(
         &mut rt,
@@ -1421,7 +1421,7 @@ fn stale_permissions_offer_fix_it_and_reset_entries_across_panes() {
     assert!(
         shown
             .iter()
-            .any(|text| text == "An older Hex entry can keep this off")
+            .any(|text| text == "An older DM Control entry can keep this off")
     );
     tap(&mut rt, "permission-accessibility-allow");
     assert_eq!(
@@ -1442,7 +1442,7 @@ fn stale_permissions_offer_fix_it_and_reset_entries_across_panes() {
     assert!(
         shown
             .iter()
-            .any(|text| text == "An older Hex entry can keep this off")
+            .any(|text| text == "An older DM Control entry can keep this off")
     );
     tap(&mut rt, "meeting-system-audio-allow");
     assert_eq!(

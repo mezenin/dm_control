@@ -118,7 +118,7 @@ fn basics(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> El {
         super::picker::open,
     );
     let (description, control) = match missing_model(ui) {
-        // Hex can't listen without the selected model: say so, with the
+        // DM Control can't listen without the selected model: say so, with the
         // download's progress, or a Download button when none runs.
         Some(progress) => {
             let error = ui
@@ -129,7 +129,7 @@ fn basics(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> El {
             let description = match error {
                 Some(error) => (error, p.danger()),
                 None => (
-                    tr("Hex can't listen until the speech model has downloaded").to_string(),
+                    tr("DM Control can't listen until the speech model has downloaded").to_string(),
                     p.muted(),
                 ),
             };
@@ -201,7 +201,7 @@ fn basics(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> El {
 }
 
 /// The selected speech model's download, while it is not installed, so
-/// Hex can't listen yet. Fixtures that name no installed models say nothing,
+/// DM Control can't listen yet. Fixtures that name no installed models say nothing,
 /// so their rows never depend on this machine's models.
 fn missing_model(ui: &Ui) -> Option<crate::desktop::onboarding::ModelProgress> {
     if !ui.live() && ui.picker.installed.is_none() {
@@ -306,7 +306,7 @@ fn configure_shortcuts_row(ui: &Ui, p: Paint) -> Option<El> {
                 "configure-shortcuts",
                 &KEYBOARD,
                 tr("Desktop shortcuts"),
-                Some(tr("Change the keys your desktop gave Hex")),
+                Some(tr("Change the keys your desktop gave DM Control")),
                 button(
                     p,
                     "configure-shortcuts-control",
@@ -318,7 +318,7 @@ fn configure_shortcuts_row(ui: &Ui, p: Paint) -> Option<El> {
         })
 }
 
-/// Cancel dictation, once the desktop gave it a key: Hex suggests none, so
+/// Cancel dictation, once the desktop gave it a key: DM Control suggests none, so
 /// the key came from the desktop and is taken from every app (#624).
 /// Desktop shortcuts' Open changes it.
 fn cancel_shortcut_row(ui: &Ui, p: Paint) -> Option<El> {
@@ -334,7 +334,7 @@ fn cancel_shortcut_row(ui: &Ui, p: Paint) -> Option<El> {
 }
 
 /// Labs › Also pause the browser's permission, under Pause media on macOS:
-/// Hex hears the browser through System Audio Recording, asked for here,
+/// DM Control hears the browser through System Audio Recording, asked for here,
 /// never while you dictate.
 fn pause_browser_rows(ui: &Ui, p: Paint) -> Vec<El> {
     let on = ui.settings.pause_browser_media;
@@ -352,7 +352,7 @@ fn pause_browser_rows(ui: &Ui, p: Paint) -> Vec<El> {
             "pause-browser-audio",
             &SPEAKER,
             tr("Screen & System Audio Recording"),
-            Some(tr("Lets Hex hear whether a tab is playing")),
+            Some(tr("Lets DM Control hear whether a tab is playing")),
             permission_control(
                 p,
                 "pause-browser-allow",
@@ -446,7 +446,7 @@ fn microphone_rows(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> Vec<CardRow> {
     let mac = ui.platform.caps.os == super::platform::Os::Macos;
     let lid_note = |built_in: &str| match default_name {
         Some(name) => tr_named(
-            "{built_in} is off while the lid is closed, so Hex listens to {input}",
+            "{built_in} is off while the lid is closed, so DM Control listens to {input}",
             &[("built_in", built_in), ("input", name)],
         ),
         None => tr_fill("{} is off while the lid is closed", built_in),
@@ -462,7 +462,7 @@ fn microphone_rows(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> Vec<CardRow> {
         }),
         None if devices.default_is_hex_microphone => default_name.map(|name| {
             tr_fill(
-                "Hex Microphone is the system default, so Hex listens to {}",
+                "Hex Microphone is the system default, so DM Control listens to {}",
                 name,
             )
         }),
@@ -473,7 +473,7 @@ fn microphone_rows(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> Vec<CardRow> {
             .zip(default_name)
             .map(|(bluetooth, input)| {
                 tr_named(
-                    "{bluetooth} is Bluetooth, so Hex listens to {input}",
+                    "{bluetooth} is Bluetooth, so DM Control listens to {input}",
                     &[("bluetooth", bluetooth), ("input", input)],
                 )
             }),
@@ -556,7 +556,7 @@ fn mic_value(ui: &Ui, p: Paint, microphone: &str, detail: Option<&str>, layer: &
 /// How often the microphone row follows the level while audio arrives.
 const LEVEL_FRAME: Duration = Duration::from_millis(33);
 
-/// What the microphone row's level shows: the audio Hex receives from the
+/// What the microphone row's level shows: the audio DM Control receives from the
 /// microphone in use, or nothing while none arrives (released while idle,
 /// failed, or not allowed), as flat, dimmed bars.
 pub(super) struct MicLevel {
