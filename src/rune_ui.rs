@@ -1,4 +1,4 @@
-//! Hex's window on every OS, on Rune.
+//! DM Control's window on every OS, on Rune.
 //!
 //! The window talks to a host in the same process: on Linux the dictation
 //! host beside it (`linux_host`); on Windows and macOS the runtime thread
@@ -129,7 +129,7 @@ static SCRAWL_ICON: Icon = Icon {
     body: include_str!("../assets/icons/scrawl.svg"),
 };
 
-/// Runs the Linux window's app on the main thread until Hex quits: the
+/// Runs the Linux window's app on the main thread until DM Control quits: the
 /// window side of `linux_app`'s seam. It starts without a window; each
 /// `Activate` opens or focuses it with the launcher's activation token, and
 /// closing it keeps the app, its state, and the host running.
@@ -216,14 +216,14 @@ pub(crate) fn app(connect: host::Connect) -> rune::App<Ui> {
     app
 }
 
-/// A `hex://` link the system opened with Hex: a story link opens the window
+/// A `hex://` link the system opened with DM Control: a story link opens the window
 /// on that playground story; anything else is ignored.
 #[cfg(target_os = "macos")]
 fn on_open_url(ui: &mut Ui, link: &str, tx: &mut Tx) {
     if let Some(target) = deep_link::parse(link, story_link::scheme()) {
         match target {
             Ok(target) => deep_link::open(ui, target, tx),
-            Err(why) => tracing::warn!(%why, "ignored a link opened with Hex"),
+            Err(why) => tracing::warn!(%why, "ignored a link opened with DM Control"),
         }
         crate::macos_rune::bring_window_forward();
         return;
@@ -231,7 +231,7 @@ fn on_open_url(ui: &mut Ui, link: &str, tx: &mut Tx) {
     let link = match story_link::parse(link, story_link::scheme()) {
         Ok(link) => link,
         Err(why) => {
-            tracing::warn!(%why, "ignored a link opened with Hex");
+            tracing::warn!(%why, "ignored a link opened with DM Control");
             return;
         }
     };
@@ -345,7 +345,7 @@ fn build(init: impl FnOnce() -> Ui + 'static, playground: PlaygroundMode) -> run
 }
 
 /// Closing the window saves pending text edits and stops a shortcut
-/// recording, as leaving a pane does. Hex keeps running.
+/// recording, as leaving a pane does. DM Control keeps running.
 fn on_close(ui: &mut Ui, _: &mut Tx) {
     ui.flush_drafts();
     settings::cancel_capture(ui);
@@ -419,7 +419,7 @@ pub(crate) fn show(ui: &mut Ui, destination: Destination, tx: &mut Tx) {
     }
 }
 
-/// What this OS's Hex can do, by capability name, for `hex status` and the
+/// What this OS's DM Control can do, by capability name, for `hex status` and the
 /// settings `hex settings` can change here.
 pub(crate) fn capabilities() -> std::collections::BTreeMap<String, bool> {
     platform::Capabilities::current()
@@ -429,7 +429,7 @@ pub(crate) fn capabilities() -> std::collections::BTreeMap<String, bool> {
         .collect()
 }
 
-/// Whether this OS's Hex has the capability `name` ([`capabilities`]).
+/// Whether this OS's DM Control has the capability `name` ([`capabilities`]).
 pub(crate) fn capability(name: &str) -> bool {
     platform::Capabilities::current()
         .fields()
@@ -530,7 +530,7 @@ pub(crate) fn meeting_failed(ui: &mut Ui, error: String) {
 }
 
 /// `hex app -- --snap out.png --scene …`: a headless render of a fixture
-/// scene, or `live` for the running Hex's `hex status`.
+/// scene, or `live` for the running DM Control's `hex status`.
 #[cfg(target_os = "linux")]
 pub(crate) fn render() {
     let with_playground =
@@ -564,7 +564,7 @@ pub(crate) fn fixed_window() -> rune::WindowOptions {
 
 fn spec() -> AppSpec<Ui> {
     AppSpec {
-        title: "Hex",
+        title: "DM Control",
         size: WINDOW_SIZE,
         // Narrower windows crowd the sidebar and rows.
         min_size: Some((860.0, 560.0)),
@@ -614,7 +614,7 @@ enum Pane {
     /// Dictation, output, and application basics.
     #[default]
     General,
-    /// What Hex does to every dictation and in some apps, read-only: the
+    /// What DM Control does to every dictation and in some apps, read-only: the
     /// person's agent edits it.
     Output,
     /// The old per-app editor, kept for its scenes until it is removed.
@@ -622,7 +622,7 @@ enum Pane {
     /// Recorded calls and their settings, or the opt-in (macOS beta).
     Meetings,
     History,
-    /// Annotate (Scrawl's captures inside Hex): the switch, shortcuts,
+    /// Annotate (Scrawl's captures inside DM Control): the switch, shortcuts,
     /// permission, transcriber, folder, retention, and Scrawl's own app.
     /// Dev builds, macOS and Linux only.
     #[cfg(hex_capture)]
@@ -741,6 +741,7 @@ enum Menu {
 
 pub(crate) struct Ui {
     settings: AppSettings,
+    voice_phrase: TextEdit,
     service: Service,
     /// This window's app, to know whether it shows (`app` sets it).
     window: Option<rune::AppHandle<Ui>>,
@@ -806,7 +807,7 @@ pub(crate) struct Ui {
     hud_copied: bool,
     /// HUD Lab saved Dot scope's tuning, until the next change.
     hud_saved: bool,
-    /// Settings saves and Quit Hex a fixture recorded.
+    /// Settings saves and Quit DM Control a fixture recorded.
     saved: usize,
     quit_requested: bool,
 }
@@ -859,7 +860,9 @@ impl Ui {
     fn with(settings: AppSettings, service: Service) -> Self {
         let modes = modes::ModesPane::new(&settings);
         let vocabulary = vocabulary::VocabularyEditor::new(&settings.vocabulary);
+        let voice_phrase = TextEdit::new(&settings.voice_control.wake_phrase);
         Self {
+            voice_phrase,
             settings,
             service,
             view: None,
@@ -1499,7 +1502,7 @@ fn window_focused(ui: &mut Ui, focused: bool, tx: &mut Tx) {
         ui.send(Request::Desktop(DesktopAction::WindowFocused));
     }
     // Screen Recording is often switched on in System Settings, so the
-    // Annotate pane reads it again as soon as Hex comes back.
+    // Annotate pane reads it again as soon as DM Control comes back.
     #[cfg(hex_capture)]
     if focused && ui.pane == Pane::Annotate && ui.platform.scrawl.is_some() {
         ui.ask(platform::PlatformRequest::Scrawl(
@@ -1796,14 +1799,14 @@ fn nav_item(p: Paint, pane: Pane, on: bool) -> El {
     lists::source_item(item, on)
 }
 
-/// Linux has no tray: the window's way to stop Hex. Closing the window
-/// keeps Hex dictating.
+/// Linux has no tray: the window's way to stop DM Control. Closing the window
+/// keeps DM Control dictating.
 fn quit_item(p: Paint) -> El {
     let c = &p.k.c;
     row()
         .key("quit")
         .role("button")
-        .label(tr("Quit Hex"))
+        .label(tr("Quit DM Control"))
         .h(NAV_ROW_HEIGHT)
         .px(6.0)
         .mt(NAV_ROW_GAP)
@@ -1815,7 +1818,7 @@ fn quit_item(p: Paint) -> El {
         .focusable(true)
         .focus_ring(2.0, -2.0, c.border_focus)
         .child(
-            text(tr("Quit Hex"))
+            text(tr("Quit DM Control"))
                 .key("label")
                 .font(p.k.ty.ui)
                 .color(c.text_muted)
@@ -1880,7 +1883,7 @@ const SCENES: &[Scene] = &[
     // (`--snap`): waits for its first snapshot instead of drawing
     // "Connecting…" at virtual time zero.
     ("live", |ui| {
-        // Reads the saved settings and the running Hex; writes neither.
+        // Reads the saved settings and the running DM Control; writes neither.
         let settings = AppSettings::read().unwrap_or_default();
         crate::desktop::i18n::apply(settings.ui_language.as_deref());
         *ui = Ui::with(settings, Service::Fixture(Vec::new()));
@@ -2435,6 +2438,11 @@ const SCENES: &[Scene] = &[
         ui.platform.developer = true;
         ui.pane = Pane::HudLab;
     }),
+    ("mac-voice-control", |ui| {
+        *ui = mac_fixture();
+        ui.settings.voice_control.enabled = true;
+        ui.labs_open = true;
+    }),
     ("mac-labs", |ui| {
         *ui = mac_fixture();
         #[cfg(hex_capture)]
@@ -2605,11 +2613,11 @@ fn mac_tour(ui: &mut Ui, step: onboarding::MacStep) {
 /// What the tour's practice microphone shows in a scene.
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum MicScene {
-    /// Recording, and Hex hears the person.
+    /// Recording, and DM Control hears the person.
     Hearing,
     /// Its menu of inputs open.
     Open,
-    /// Recording, and Hex hears nothing.
+    /// Recording, and DM Control hears nothing.
     Silent,
     /// The lid closed and no other input.
     LidClosed,

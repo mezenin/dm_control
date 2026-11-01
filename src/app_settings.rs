@@ -1459,7 +1459,7 @@ pub fn default_meeting_output_folder() -> PathBuf {
         .join(if crate::app_paths::is_macos_test_build() {
             "Hex Test Meetings"
         } else {
-            "Hex Meetings"
+            "DM Control Meetings"
         })
 }
 
@@ -1833,6 +1833,7 @@ pub struct AppSettings {
     pub experimental: ExperimentalSettings,
     /// The Labs features' own switches (`crate::labs`).
     pub labs: LabsSettings,
+    pub voice_control: crate::voice_control::Settings,
     /// Start listening when Hex opens (Windows and Linux, where the
     /// listener can be off).
     pub enable_on_launch: bool,
@@ -1913,6 +1914,7 @@ impl Default for AppSettings {
     fn default() -> Self {
         Self {
             retired_commands_enabled: None,
+            voice_control: crate::voice_control::Settings::default(),
             release_microphone_while_idle: false,
             sound_effects: true,
             sound_effect_volume: 0.5,
@@ -2229,6 +2231,7 @@ impl AppSettings {
     }
 
     fn apply_runtime(&self) {
+        crate::voice_control::configure(self.voice_control.clone());
         MICROPHONE_POLICY.store(
             u8::from(self.release_microphone_while_idle),
             Ordering::Release,
@@ -3274,7 +3277,7 @@ mod tests {
             settings
                 .meetings
                 .resolved_output_folder()
-                .ends_with("Hex Meetings")
+                .ends_with("DM Control Meetings")
         );
         assert!(settings.text_replacements.is_empty());
     }
@@ -3833,6 +3836,7 @@ mod tests {
             language: "fr".into(),
         };
         let mut settings = AppSettings {
+            transcription: TranscriptionSelection::default(),
             show_dock_icon: false,
             microphone: Some("Test microphone".into()),
             ..Default::default()
@@ -3899,6 +3903,7 @@ mod tests {
     #[test]
     fn invalid_remembered_languages_are_not_offered_by_model_switching() {
         let mut settings = AppSettings {
+            transcription: TranscriptionSelection::default(),
             transcription_recents: vec![
                 TranscriptionSelection {
                     model: TranscriptionModelId::ParakeetV2,

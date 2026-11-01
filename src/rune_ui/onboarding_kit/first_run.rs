@@ -1,10 +1,10 @@
 //! The first-run onboarding flow (`t405`), featuring:
 //!
 //! - Flat, crisp Rune 2D UI (no embossed cards or shader starbursts).
-//! - Hex's real `Dot scope` phosphor dot-matrix HUD (`rune_hud.wgsl`) on
-//!   `"Setting up Hex"`, `"With Hex"`, and `"Your turn"`.
+//! - DM Control's real `Dot scope` phosphor dot-matrix HUD (`rune_hud.wgsl`) on
+//!   `"Setting up DM Control"`, `"With DM Control"`, and `"Your turn"`.
 //! - Live interactive `"Your turn"` in desktop windows: pauses with a focused
-//!   [`rune_kit::TextArea`] so holding `⌥` and speaking into the running Hex
+//!   [`rune_kit::TextArea`] so holding `⌥` and speaking into the running DM Control
 //!   listener pastes real dictated words right into the card.
 //! - Calm permission grants and the escaping Accessibility panel (`permissions`).
 //! - Auditionable typing key-sound candidates and `#292` `feedback` tones (`sfx`).
@@ -121,7 +121,7 @@ fn ready_page(p: Paint, s: &Onboard) -> El {
                             .key("try-again"),
                     )
                     .child(
-                        Button::new("Start using Hex")
+                        Button::new("Start using DM Control")
                             .variant(ButtonVariant::Contrast)
                             .on_press(live::finish)
                             .build_push(p.k)
@@ -204,7 +204,7 @@ fn download_page(p: Paint, s: &Onboard, waiting: bool) -> El {
             s,
             "waiting-head",
             "Almost ready",
-            lead(p, "Finishing the speech model so Hex can hear you."),
+            lead(p, "Finishing the speech model so DM Control can hear you."),
         )
     } else {
         let subtitle = row()
@@ -218,7 +218,7 @@ fn download_page(p: Paint, s: &Onboard, waiting: bool) -> El {
                 language_capsule(p, d.language, Onboard::cycle_language)
             })
             .child(text("speech model").key("post").font(LEAD).color(p.muted()));
-        heading(p, s, "download-head", "Setting up Hex", subtitle)
+        heading(p, s, "download-head", "Setting up DM Control", subtitle)
     };
 
     let pct = (d.fraction() * 100.0).round() as u32;
@@ -361,7 +361,7 @@ fn try_page(p: Paint, s: &Onboard) -> El {
             p,
             s,
             "try-heard",
-            "That's Hex",
+            "That's DM Control",
             lead(p, "It types wherever your cursor is, in any app."),
         ),
         _ => heading(
@@ -456,7 +456,7 @@ fn shortcut_capsule(p: Paint, caps: &[String], down: bool, cycles: bool) -> El {
 }
 
 /// Live interactive `"Your turn"` stage: real `Dot scope` HUD above a focused
-/// [`TextArea`] that receives real dictated pastes from the running Hex app (or
+/// [`TextArea`] that receives real dictated pastes from the running DM Control app (or
 /// direct typing).
 fn interactive_try_stage(p: Paint, s: &Onboard) -> El {
     let hud_el = if let Some(frame) = s.hud.frame() {

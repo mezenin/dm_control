@@ -131,13 +131,13 @@ mod tray {
 
         pub(crate) fn tooltip(&self) -> &'static str {
             if self.recording() {
-                tr("Hex Dictation: recording")
+                tr("DM Control Dictation: recording")
             } else if self.transcribing() {
-                tr("Hex Dictation: transcribing")
+                tr("DM Control Dictation: transcribing")
             } else if self.update.is_some() {
-                tr("Hex Dictation: update available")
+                tr("DM Control Dictation: update available")
             } else {
-                tr("Hex Dictation")
+                tr("DM Control Dictation")
             }
         }
 
@@ -155,7 +155,7 @@ mod tray {
                 menu.push(TrayItem::action("status", status).enabled(false));
                 menu.push(TrayItem::Separator);
             }
-            menu.push(TrayItem::action("show", tr("Show Hex")));
+            menu.push(TrayItem::action("show", tr("Show DM Control")));
             menu.push(
                 TrayItem::action("paste-last", tr("Paste last dictation")).enabled(self.listening),
             );
@@ -196,8 +196,11 @@ mod tray {
                     .as_ref()
                     .map(|label| TrayItem::action("update", label.clone())),
             );
-            menu.push(TrayItem::action("toggle", tr("Enable / Disable Hex")));
-            menu.push(TrayItem::action("quit", tr("Quit Hex")));
+            menu.push(TrayItem::action(
+                "toggle",
+                tr("Enable / Disable DM Control"),
+            ));
+            menu.push(TrayItem::action("quit", tr("Quit DM Control")));
             menu
         }
     }
@@ -313,7 +316,7 @@ mod tests {
             Some(TrayCommand::PasteLast)
         );
         assert_eq!(TrayCommand::from_id("status"), None);
-        assert_eq!(view.tooltip(), "Hex Dictation: recording");
+        assert_eq!(view.tooltip(), "DM Control Dictation: recording");
         // Meetings on adds its items after Paste last dictation.
         let meeting = TrayView {
             meetings: Some(MeetingTray::Recording),
@@ -341,6 +344,6 @@ mod tests {
             &DesktopUpdateStatus::Current,
             Vec::new(),
         );
-        assert_eq!(stopped.tooltip(), "Hex Dictation");
+        assert_eq!(stopped.tooltip(), "DM Control Dictation");
     }
 }

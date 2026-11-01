@@ -1,4 +1,4 @@
-//! The playground (Labs › Playground): Rune's playground in Hex's window,
+//! The playground (Labs › Playground): Rune's playground in DM Control's window,
 //! opened from its sidebar item or ⇧⌘D (Ctrl+Shift+D off macOS). It swaps
 //! the window for a folded list of
 //! prototypes (the onboarding options, live meeting notes, and on macOS
@@ -193,6 +193,7 @@ const PATHS: &[(&str, &str)] = &[
         "Window/Voice Filter/Driver missing",
     ),
     ("mac-hud-lab", "Window/HUD Lab/HUD Lab"),
+    ("mac-voice-control", "Window/General/Voice control"),
     ("mac-labs", "Window/General/Labs"),
     ("mac-labs-link", "Window/General/Labs link"),
     ("mac-production", "Window/General/Production build"),
@@ -300,7 +301,7 @@ fn playground() -> Playground<Ui> {
     let playground = Playground::new()
         .enabled(true)
         .bar(false)
-        .sizes(&[("Hex window", WINDOW_SIZE)])
+        .sizes(&[("DM Control window", WINDOW_SIZE)])
         .group_order(GROUPS)
         .start_folded(true);
     let playground = super::onboarding_kit::stories(playground);

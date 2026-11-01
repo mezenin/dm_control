@@ -274,7 +274,10 @@ impl WindowsDesktopHost {
             | DesktopAction::ConfirmUpdateSwitch
             | DesktopAction::WindowFocused => {
                 if let Err(error) = self.updater.act(&action) {
-                    self.error = Some(tr_fill("Could not restart Hex: {}", &format!("{error:#}")));
+                    self.error = Some(tr_fill(
+                        "Could not restart DM Control: {}",
+                        &format!("{error:#}"),
+                    ));
                 }
             }
             // Windows saves shortcuts from the window.
@@ -552,7 +555,10 @@ impl WindowsDesktopHost {
                 true
             }
             Some(Err(error)) => {
-                self.error = Some(tr_fill("Could not restart Hex: {}", &format!("{error:#}")));
+                self.error = Some(tr_fill(
+                    "Could not restart DM Control: {}",
+                    &format!("{error:#}"),
+                ));
                 false
             }
             None => false,

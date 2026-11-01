@@ -88,12 +88,12 @@ pub(crate) struct Onboard {
     pub(crate) parked_from: Option<f64>,
     pub(crate) typing_from: Option<f64>,
     pub(crate) voice_from: Option<f64>,
-    /// When the resting HUD plate first showed on `"With Hex"` or
+    /// When the resting HUD plate first showed on `"With DM Control"` or
     /// `"Your turn"`: the HUD unfolds from here and keeps running through the
     /// take, so pressing the shortcut never restarts it.
     pub(crate) hud_from: Option<f64>,
     pub(crate) take_from: Option<f64>,
-    /// How many `"Without Hex"` bubbles have flown out of the field so far.
+    /// How many `"Without DM Control"` bubbles have flown out of the field so far.
     sent_seen: usize,
     pub(crate) partial: &'static str,
     pub(crate) take: &'static Take,
@@ -117,7 +117,7 @@ pub(crate) struct Onboard {
     /// A dictation's text landed since the plate last stepped.
     pub(crate) hud_landed: bool,
     pub(crate) sfx: SfxTrack,
-    /// Set when this is Hex's real first run (Labs):
+    /// Set when this is DM Control's real first run (Labs):
     /// what the window's tour reports, in place of the fixtures.
     pub(crate) live: Option<Live>,
     /// The dictated words flying into the practice field.
@@ -131,7 +131,7 @@ pub(crate) struct Onboard {
 }
 
 /// A story's dictation of [`ANSWER_TRY`] on the interactive `"Your turn"`,
-/// through the same live words and paste as Hex's real one.
+/// through the same live words and paste as DM Control's real one.
 #[derive(Clone, Copy, Debug)]
 pub(crate) struct Rehearsal {
     /// Whether the model sends live words while the shortcut is held.
@@ -281,7 +281,7 @@ impl Onboard {
     }
 
     /// Toggles the inline language capsule button (`English` ↔ `French`) on
-    /// `"Setting up Hex"`.
+    /// `"Setting up DM Control"`.
     pub(crate) fn cycle_language(&mut self) {
         let next = match self.language.unwrap_or(self.wants) {
             Language::English => Language::Other,
@@ -314,7 +314,7 @@ impl Onboard {
     }
 
     /// Called when the interactive `"Your turn"` [`TextArea`] changes (e.g. a
-    /// real dictation paste from Hex lands or the user types).
+    /// real dictation paste from DM Control lands or the user types).
     pub(crate) fn on_practice_change(&mut self, _: &mut Tx) {
         if super::game::changed(self) {
             return;
@@ -524,7 +524,7 @@ pub(crate) fn add<S: 'static>(playground: Playground<S>) -> Playground<S> {
             Onboard::new(Flow::Shout)
         }))
         .story(story(
-            "Prototypes/Onboarding/Without Hex · With Hex",
+            "Prototypes/Onboarding/Without DM Control · With DM Control",
             || Onboard::new(Flow::Versus),
         ))
         .story(first_run())
@@ -863,7 +863,7 @@ pub(super) fn advance_to(s: &mut Onboard, now: f64, tx: &mut Tx) -> bool {
     s.now = now;
     tx.trace_channel("onboarding.step", "phase", s.step as u32 as f32);
     tx.trace_channel("onboarding.mic", "level", s.listening_peak().unwrap_or(0.0));
-    // A sent `"Without Hex"` reply lifts out of the field into its bubble.
+    // A sent `"Without DM Control"` reply lifts out of the field into its bubble.
     let sent = versus::sent_count(s);
     for i in s.sent_seen..sent {
         tx.launch("typed/line0", format!("sent-bubble-{i}"));
@@ -880,7 +880,7 @@ pub(super) fn advance_to(s: &mut Onboard, now: f64, tx: &mut Tx) -> bool {
     if trying && super::game::step(s, now) {
         s.hud.clear();
     } else if trying {
-        // The real first run follows Hex's own dictation, which sounds its
+        // The real first run follows DM Control's own dictation, which sounds its
         // own tones; a rehearsal plays one without them.
         let real = match s.rehearsal {
             Some(rehearsal) => Some(rehearsal.held(now)),
@@ -945,7 +945,7 @@ pub(super) fn advance_to(s: &mut Onboard, now: f64, tx: &mut Tx) -> bool {
         || (s.examples_from.is_some() && (s.step < Step::Ready || !s.reduced.get()));
     moving |= s.dictated.moving();
 
-    // The real first run's download comes from Hex (`live::poll`).
+    // The real first run's download comes from DM Control (`live::poll`).
     let from = s.download_from.filter(|_| s.live.is_none());
     if let Some(download) = s.download.as_mut().filter(|_| s.live.is_some()) {
         if download.done() {
@@ -1088,7 +1088,7 @@ fn side(s: &Onboard, cx: &mut Cx<Onboard>) -> El {
             side_chip(
                 p,
                 "step-demo",
-                "2 · Without / With Hex",
+                "2 · Without / With DM Control",
                 matches!(
                     s.step,
                     Step::Parked | Step::YourTurn | Step::Hearing | Step::Heard | Step::Done
@@ -1112,7 +1112,7 @@ fn side(s: &Onboard, cx: &mut Cx<Onboard>) -> El {
             side_chip(
                 p,
                 "step-ready",
-                "5 · Hex is ready",
+                "5 · DM Control is ready",
                 s.step == Step::Ready,
                 Onboard::jump_to_ready,
             ),
@@ -1144,7 +1144,7 @@ fn side(s: &Onboard, cx: &mut Cx<Onboard>) -> El {
     }
 
     let note = if s.interactive_try() {
-        "On Your turn, hold ⌥ and speak into your Mac's mic — your running Hex pastes your real words into the card."
+        "On Your turn, hold ⌥ and speak into your Mac's mic — your running DM Control pastes your real words into the card."
     } else {
         "English: Parakeet Unified English, 731 MB, streams. French: Parakeet v3, 740 MB."
     };
@@ -1271,7 +1271,7 @@ mod tests {
         let mut s = Onboard::new(Flow::FirstRun);
         s.jump_to_try();
         assert_eq!(s.step, Step::Try);
-        s.practice.text = "Testing live dictation in Hex.".into();
+        s.practice.text = "Testing live dictation in DM Control.".into();
         let mut tx = Tx::default();
         s.on_practice_change(&mut tx);
         assert_eq!(s.step, Step::TryHeard);

@@ -59,6 +59,14 @@ impl AppSettings {
         let (mut settings, mut repaired) = decode(&data);
         let loaded = serde_json::to_value(&settings)?;
         let hints = legacy_recognition_hints(&data);
+        if let Err(error) =
+            crate::voice_control::validate_phrase(&settings.voice_control.wake_phrase)
+        {
+            warn("voice_control.wake_phrase", error);
+            settings.voice_control.wake_phrase =
+                crate::voice_control::Settings::default().wake_phrase;
+            repaired = true;
+        }
         if let Err(error) = settings.validate_recording_duck_volume() {
             warn("recording_duck_volume", &error.to_string());
             settings.recording_duck_volume = Self::default().recording_duck_volume;
@@ -98,6 +106,8 @@ impl AppSettings {
 
     pub(super) fn write_to(&self, path: &Path) -> Result<()> {
         self.validate_recording_duck_volume()?;
+        crate::voice_control::validate_phrase(&self.voice_control.wake_phrase)
+            .map_err(|error| color_eyre::eyre::eyre!(error))?;
         let bytes = serde_json::to_vec_pretty(self)?;
         let _writer = WRITER.lock().unwrap_or_else(|error| error.into_inner());
         let parent = path

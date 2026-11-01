@@ -201,7 +201,7 @@ pub enum Input {
         relaunch_allowed: bool,
     },
     Reopen,
-    /// "Restart Hex" once every permission is on and one waits for it.
+    /// "Restart DM Control" once every permission is on and one waits for it.
     Restart,
 }
 
@@ -616,12 +616,8 @@ fn grantable(state: PermissionState) -> bool {
 }
 
 /// Bundle identifiers of older macOS Hex releases (2.3.1 and the Swift app)
-/// whose stale TCC rows can shadow or confuse grants for `anomaly.hex`.
-pub const LEGACY_MAC_BUNDLE_IDS: [&str; 3] = [
-    "com.kitlangton.hex2",
-    "com.kitlangton.Hex",
-    "com.kitlangton.Hex.debug",
-];
+/// whose stale TCC rows can shadow or confuse grants for `mezenin.dm-control`.
+pub const LEGACY_MAC_BUNDLE_IDS: [&str; 0] = [];
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TccResetOutcome {
@@ -675,9 +671,9 @@ pub fn classify_tccutil_reset(code: Option<i32>, stderr: &str) -> TccResetOutcom
 /// unavailable (such as a loose binary).
 pub fn default_mac_bundle_id(test_build: Option<&str>) -> &'static str {
     if test_build == Some("1") {
-        "anomaly.hex.test"
+        "mezenin.dm-control.test"
     } else {
-        "anomaly.hex"
+        "mezenin.dm-control"
     }
 }
 
@@ -906,7 +902,7 @@ pub(crate) fn completion_recorded_at(directory: &Path) -> bool {
     true
 }
 
-/// Once per settings file from before `anomaly.hex` (2.3.1 shared the `hex`
+/// Once per settings file from before `mezenin.dm-control` (2.3.1 shared the `hex`
 /// folder): macOS gave the new identity none of the old grants, so setup
 /// that is not ready at launch reopens the tour instead of counting the old
 /// completion. Setup that is ready changes nothing.
@@ -1225,7 +1221,7 @@ mod tests {
             ("HEXAGON", "no"),
         ]
         .map(|(key, value)| (key.into(), value.into()));
-        let arguments = relaunch_arguments(42, Path::new("/Applications/Hex.app"), vars);
+        let arguments = relaunch_arguments(42, Path::new("/Applications/DM Control.app"), vars);
         let arguments = arguments
             .iter()
             .map(|argument| argument.to_str().unwrap())
@@ -1243,7 +1239,7 @@ mod tests {
                 "HEX_EXPERIMENTAL_MIC=a=b,c",
                 "--env",
                 "HEX_RETAIN_DICTATION_AUDIO=1",
-                "/Applications/Hex.app",
+                "/Applications/DM Control.app",
             ]
         );
     }
@@ -2035,17 +2031,10 @@ mod tests {
 
     #[test]
     fn tcc_services_scope_own_resets_narrowly_and_legacy_cleanup_across_shared_pane() {
-        assert_eq!(
-            LEGACY_MAC_BUNDLE_IDS,
-            [
-                "com.kitlangton.hex2",
-                "com.kitlangton.Hex",
-                "com.kitlangton.Hex.debug"
-            ]
-        );
-        assert_eq!(default_mac_bundle_id(None), "anomaly.hex");
-        assert_eq!(default_mac_bundle_id(Some("0")), "anomaly.hex");
-        assert_eq!(default_mac_bundle_id(Some("1")), "anomaly.hex.test");
+        assert!(LEGACY_MAC_BUNDLE_IDS.is_empty());
+        assert_eq!(default_mac_bundle_id(None), "mezenin.dm-control");
+        assert_eq!(default_mac_bundle_id(Some("0")), "mezenin.dm-control");
+        assert_eq!(default_mac_bundle_id(Some("1")), "mezenin.dm-control.test");
 
         assert_eq!(
             own_tcc_services(PermissionKind::Accessibility),

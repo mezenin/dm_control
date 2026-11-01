@@ -114,6 +114,16 @@ const NUMERIC_CHOICES: [&str; 2] = ["meetings.calendar.lead_minutes", "labs.unlo
 
 const KEYS: &[Key] = &[
     key(
+        "voice_control.enabled",
+        Kind::Bool,
+        "Labs: listen for a wake phrase and control media (macOS)",
+    ),
+    key(
+        "voice_control.wake_phrase",
+        Kind::Text,
+        "English wake phrase, 2–5 words; default Hello Hex",
+    ),
+    key(
         "keyboard_model_switching.enabled",
         Kind::Bool,
         "Labs: switch the model when the keyboard input source changes (macOS, Windows, X11)",
@@ -575,6 +585,12 @@ fn needs(key: &str) -> Option<&'static str> {
 
 /// Why `hex settings set` refuses `name` on this OS, if it does.
 pub fn unavailable(name: &str) -> Option<ControlError> {
+    if name.starts_with("voice_control.") && !cfg!(target_os = "macos") {
+        return Some(ControlError::new(
+            "unsupported",
+            "Voice control is available on macOS",
+        ));
+    }
     if let Some(feature) = crate::labs::Feature::for_settings_key(name)
         && !feature.shipped()
     {

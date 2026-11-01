@@ -126,13 +126,17 @@ impl Fixture {
 
 /// "Spanish" mapped to `model` in the language it would get from the picker.
 fn mapped_settings(model: TranscriptionModelId) -> AppSettings {
-    let settings = AppSettings::default();
+    let settings = AppSettings {
+        transcription: TranscriptionSelection::default(),
+        ..AppSettings::default()
+    };
     let language = settings.transcription_for_model(model).language;
     mapped_settings_in(model, &language)
 }
 
 fn mapped_settings_in(model: TranscriptionModelId, language: &str) -> AppSettings {
     AppSettings {
+        transcription: TranscriptionSelection::default(),
         keyboard_model_switching: KeyboardModelSwitching {
             enabled: true,
             mappings: [(

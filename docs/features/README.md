@@ -12,6 +12,8 @@ locators unless an executed result is explicitly recorded, as in the
 
 ## Product Map
 
+This personal fork also adds [DM Control voice control](voice-control.md): a configurable wake phrase and local multimedia actions, off by default in Labs on macOS.
+
 ```ts
 Hex                                      // macOS release
 ├── Get ready                            // install, permissions, local model

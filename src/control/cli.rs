@@ -1024,7 +1024,7 @@ fn start(output: Output) -> u8 {
         Ok(status) if status.success() => {}
         Ok(_) | Err(_) => {
             return print(
-                ControlReply::error("failed", "couldn't open Hex.app; is it installed?"),
+                ControlReply::error("failed", "couldn't open DM Control.app; is it installed?"),
                 output,
             );
         }
@@ -1116,7 +1116,7 @@ fn reopen_after_restart() -> ControlReply {
 }
 
 /// `open` arguments for `hex start`: the caller's `HEX_*` environment, then
-/// the Hex.app this `hex` belongs to, or the installed app by bundle id.
+/// the DM Control.app this `hex` belongs to, or the installed app by bundle id.
 #[cfg(target_os = "macos")]
 fn open_arguments(
     bundle: Option<&std::path::Path>,
@@ -1129,9 +1129,9 @@ fn open_arguments(
         None => arguments.extend([
             "-b".into(),
             if test_build {
-                "anomaly.hex.test"
+                "mezenin.dm-control.test"
             } else {
-                "anomaly.hex"
+                "mezenin.dm-control"
             }
             .into(),
         ]),
@@ -1139,7 +1139,7 @@ fn open_arguments(
     arguments
 }
 
-/// The Hex.app this `hex` belongs to, when it runs from (or links into) one.
+/// The DM Control.app this `hex` belongs to, when it runs from (or links into) one.
 #[cfg(target_os = "macos")]
 fn installed_bundle() -> Option<std::path::PathBuf> {
     let executable = std::fs::canonicalize(std::env::current_exe().ok()?).ok()?;
@@ -1284,18 +1284,18 @@ mod tests {
             "--env",
             "HEX_RETAIN_DICTATION_AUDIO=1",
         ];
-        let bundle = std::path::Path::new("/Applications/Hex.app");
+        let bundle = std::path::Path::new("/Applications/DM Control.app");
         assert_eq!(
             strings(open_arguments(Some(bundle), false, vars())),
-            [&env[..], &["/Applications/Hex.app"]].concat()
+            [&env[..], &["/Applications/DM Control.app"]].concat()
         );
         assert_eq!(
             strings(open_arguments(None, false, vars())),
-            [&env[..], &["-b", "anomaly.hex"]].concat()
+            [&env[..], &["-b", "mezenin.dm-control"]].concat()
         );
         assert_eq!(
             strings(open_arguments(None, true, [])),
-            ["-b", "anomaly.hex.test"]
+            ["-b", "mezenin.dm-control.test"]
         );
     }
 

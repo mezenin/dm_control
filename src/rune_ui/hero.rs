@@ -1,4 +1,4 @@
-//! The welcome hero: the Hex glyph, backlit, drawn live on the GPU over the
+//! The welcome hero: the DM Control glyph, backlit, drawn live on the GPU over the
 //! tour's stage. Rune lays out an empty keyed stage; the window's compositor
 //! draws the UI as usual, then `hero.wgsl` in two passes over a quad around
 //! the stage: god rays at half the target's resolution, then the

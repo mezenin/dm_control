@@ -1406,7 +1406,7 @@ pub(super) fn fixture(ui: &mut Ui) {
         },
         TextReplacement {
             matched_phrase: "hex app".into(),
-            output: "Hex".into(),
+            output: "DM Control".into(),
         },
     ];
     chat.transformations = vec!["smart-punctuation".into()];

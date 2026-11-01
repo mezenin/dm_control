@@ -147,14 +147,14 @@ pub(super) fn status_note(model: &ModelDefinition) -> Option<String> {
     }
 }
 
-/// General's notice when the saved model is an import that can't run: Hex
+/// General's notice when the saved model is an import that can't run: DM Control
 /// keeps the choice and runs the default model until it is fixed.
 pub(super) fn selection_notice(ui: &Ui) -> Option<String> {
     let model = crate::transcription::models::definition(ui.settings.transcription.model);
     let fallback = crate::transcription::models::definition(custom_models::fallback().model).name;
     if model.id == TranscriptionModelId::ParakeetUltra && !model.available() {
         return Some(tr_named(
-            "{model} needs Labs › Parakeet Ultra, so Hex uses {fallback} until you turn it on or choose another model",
+            "{model} needs Labs › Parakeet Ultra, so DM Control uses {fallback} until you turn it on or choose another model",
             &[("model", model.name), ("fallback", fallback)],
         ));
     }
@@ -169,13 +169,13 @@ pub(super) fn selection_notice(ui: &Ui) -> Option<String> {
     let notice = match custom_models::status(id) {
         Status::Ready => return None,
         Status::Missing => {
-            "{model} is missing, so Hex uses {fallback} until you import it again or choose another model"
+            "{model} is missing, so DM Control uses {fallback} until you import it again or choose another model"
         }
         Status::Changed => {
-            "{model} changed since it was imported, so Hex uses {fallback} until you import it again or choose another model"
+            "{model} changed since it was imported, so DM Control uses {fallback} until you import it again or choose another model"
         }
         Status::Off => {
-            "{model} needs Labs › Use your own speech model, so Hex uses {fallback} until you turn it on or choose another model"
+            "{model} needs Labs › Use your own speech model, so DM Control uses {fallback} until you turn it on or choose another model"
         }
     };
     Some(tr_named(notice, &[("model", name), ("fallback", fallback)]))
@@ -244,7 +244,7 @@ pub(super) fn actions(
         ];
     }
     let mut actions = Vec::new();
-    // Missing or changed: check Hex's copy again, or import the file again.
+    // Missing or changed: check DM Control's copy again, or import the file again.
     let status = custom_models::status(id);
     if status == Status::Changed {
         actions.push(button(
@@ -303,7 +303,7 @@ pub(super) fn actions(
     actions
 }
 
-/// Rehashes Hex's copy on a worker; a match makes the import ready again.
+/// Rehashes DM Control's copy on a worker; a match makes the import ready again.
 fn repair(ui: &mut Ui, id: CustomModelId) {
     if !ui.live() || ui.picker.import.busy() {
         return;
@@ -338,7 +338,7 @@ fn save_name(ui: &mut Ui) {
     }
 }
 
-/// The first press arms Remove, as Delete does; the second removes Hex's copy.
+/// The first press arms Remove, as Delete does; the second removes DM Control's copy.
 fn remove(ui: &mut Ui, id: CustomModelId) {
     let model = TranscriptionModelId::Custom(id);
     if ui.picker.deletion != Some(model) {

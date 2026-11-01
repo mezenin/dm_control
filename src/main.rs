@@ -58,6 +58,8 @@ mod rune_ui;
 mod suppression;
 mod transcription;
 mod updater;
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+mod voice_control;
 #[cfg(target_os = "windows")]
 mod windows;
 
@@ -116,6 +118,15 @@ enum Command {
         /// Capture from this microphone instead of the saved one or the system default.
         #[arg(long)]
         device: Option<String>,
+    },
+    /// Check local voice-control parsing or a wake-phrase WAV without opening the microphone or performing actions.
+    VoiceControl {
+        #[arg(long, conflicts_with = "wav")]
+        text: Option<String>,
+        #[arg(long, conflicts_with = "text")]
+        wav: Option<PathBuf>,
+        #[arg(long, default_value = "Hello Hex")]
+        phrase: String,
     },
     /// Run the headless local API service.
     #[command(hide = true)]
@@ -280,6 +291,9 @@ enum MeetingCommand {
 fn main() -> Result<()> {
     color_eyre::install()?;
     let cli = Cli::parse_from(mcp_alias_arguments(std::env::args_os().collect()));
+    if let Some(Command::VoiceControl { text, wav, phrase }) = &cli.command {
+        return voice_control::check(text.as_deref(), wav.as_deref(), phrase);
+    }
     let executable_name = std::env::current_exe()
         .ok()
         .and_then(|path| path.file_stem().map(ToOwned::to_owned));
@@ -405,6 +419,7 @@ fn main() -> Result<()> {
             local_api::run_service(&log_dir, event_path, embedded, &SHUTDOWN)
         }
         Command::Control(_) => unreachable!("handled before startup"),
+        Command::VoiceControl { .. } => unreachable!("handled before startup"),
         #[cfg(hex_capture)]
         Command::CapsulePlayground { .. } => unreachable!("handled before startup"),
         Command::Dev { command } => {

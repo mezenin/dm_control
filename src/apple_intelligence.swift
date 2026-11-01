@@ -195,7 +195,13 @@ public func hexAppleIntelligenceAvailability() -> Int32 {
 public func hexAppleIntelligenceContextSize() -> Int {
     #if canImport(FoundationModels)
     guard #available(macOS 26.0, *) else { return 0 }
+    #if HEX_FOUNDATION_CONTEXT_SIZE
     return SystemLanguageModel.default.contextSize
+    #else
+    // Foundation Models' documented window before the 26.4 SDK.
+    if case .available = SystemLanguageModel.default.availability { return 4096 }
+    return 0
+    #endif
     #else
     return 0
     #endif

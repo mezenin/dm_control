@@ -172,7 +172,7 @@ fn a_refused_portal_shortcut_says_how_to_free_it() {
 }
 
 /// #635: Hyprland's portal names no trigger, since its config binds the
-/// keys, so the row says Hex can't confirm it and shows no refusal.
+/// keys, so the row says DM Control can't confirm it and shows no refusal.
 #[test]
 fn an_unconfirmed_portal_shortcut_is_not_called_refused() {
     let mut rt = runtime("portal", true, GOLDEN_SIZE);
@@ -189,7 +189,8 @@ fn an_unconfirmed_portal_shortcut_is_not_called_refused() {
     assert!(
         shown
             .iter()
-            .any(|text| text == "Your desktop assigns this key itself, so Hex can't confirm it")
+            .any(|text| text
+                == "Your desktop assigns this key itself, so DM Control can't confirm it")
     );
     assert!(
         !shown
@@ -1818,7 +1819,10 @@ fn onboarding_downloads_the_model_through_the_service() {
     // Setup moves on to the practice dictation, which can be skipped.
     tap(&mut rt, "tour-skip");
     tap(&mut rt, "tour-continue");
-    assert!(rt.state.tour.is_none(), "Start using Hex closes setup");
+    assert!(
+        rt.state.tour.is_none(),
+        "Start using DM Control closes setup"
+    );
 }
 
 #[test]
@@ -1836,7 +1840,7 @@ fn the_microphone_field_names_the_input_in_use() {
 
 #[test]
 fn a_closed_lid_names_the_input_standing_in_for_the_built_in_microphone() {
-    let note = "MacBook Pro Microphone is off while the lid is closed, so Hex listens to Studio Display Microphone";
+    let note = "MacBook Pro Microphone is off while the lid is closed, so DM Control listens to Studio Display Microphone";
     let field = |rt: &Runtime<Ui>| element(rt, "microphone-control").label;
     let mut rt = runtime("mac-microphone-lid-closed", true, PANE_SIZE);
     assert_eq!(
@@ -1863,7 +1867,7 @@ fn a_closed_lid_names_the_input_standing_in_for_the_built_in_microphone() {
 
 #[test]
 fn a_passed_over_bluetooth_default_names_the_input_in_use() {
-    let note = "Kit Pods is Bluetooth, so Hex listens to MacBook Pro Microphone";
+    let note = "Kit Pods is Bluetooth, so DM Control listens to MacBook Pro Microphone";
     let mut rt = runtime("mac-microphone-bluetooth", true, TALL_SIZE);
     assert_eq!(
         element(&rt, "microphone-control").label.as_deref(),

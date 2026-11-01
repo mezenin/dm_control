@@ -9,9 +9,9 @@ use super::playground;
 
 /// Why a link opened only the window.
 pub(crate) const PLAYGROUND_OFF: &str = "the playground is in Labs; turn it on with \
-     `hex labs on playground` and restart Hex";
+     `hex labs on playground` and restart DM Control";
 
-/// Longer links are ignored: they come from outside Hex.
+/// Longer links are ignored: they come from outside DM Control.
 pub(super) const MAX_LINK: usize = 2048;
 
 /// A story to open in the playground.
@@ -35,7 +35,7 @@ impl StoryLink {
     }
 }
 
-/// The scheme this build registers: a test build's never opens the real Hex.
+/// The scheme this build registers: a test build's never opens the real DM Control.
 pub(crate) fn scheme() -> &'static str {
     if crate::app_paths::is_macos_test_build() {
         "hex-test"

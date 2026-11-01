@@ -55,14 +55,14 @@ pub(super) struct Tour {
     pub(super) mic: MicMeter,
 }
 
-/// The practice dictation's level, and whether Hex heard nothing from the
+/// The practice dictation's level, and whether DM Control heard nothing from the
 /// microphone it records from.
 #[derive(Default)]
 pub(super) struct MicMeter {
     /// 0 to 1, shown in `LEVEL_STEPS` steps.
     pub(super) level: f32,
     quiet_since: Option<Instant>,
-    /// The microphone setting Hex heard nothing from. The warning stays
+    /// The microphone setting DM Control heard nothing from. The warning stays
     /// until that microphone is heard or another is picked.
     pub(super) silent: Option<Option<String>>,
 }
@@ -70,7 +70,7 @@ pub(super) struct MicMeter {
 /// A peak this loud is sound; a switched-off microphone delivers zeros
 /// and a quiet room stays well under it.
 const HEARD_PEAK: f32 = 0.02;
-/// Silence this long while recording means Hex hears nothing.
+/// Silence this long while recording means DM Control hears nothing.
 const QUIET_FOR: Duration = Duration::from_millis(1500);
 const LEVEL_STEPS: f32 = 6.0;
 
@@ -345,14 +345,14 @@ pub(super) fn overlay(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> Option<El> {
     };
     let primary = match view.step {
         Step::Welcome => Some((tr("Get started"), true, Input::Continue)),
-        Step::Setup if view.restart => Some((tr("Restart Hex"), true, Input::Restart)),
+        Step::Setup if view.restart => Some((tr("Restart DM Control"), true, Input::Restart)),
         Step::Setup => Some((tr("Continue"), view.ready, Input::Continue)),
         Step::TryIt if view.practice == Practice::Landed => {
             Some((tr("Continue"), true, Input::Continue))
         }
         Step::TryIt => None,
         Step::Done if !view.dictation_ready => Some((tr("Continue"), true, Input::Continue)),
-        Step::Done => Some((tr("Start using Hex"), true, Input::Continue)),
+        Step::Done => Some((tr("Start using DM Control"), true, Input::Continue)),
     };
     // Until setup is ready the next setup row carries the accent, so
     // Continue waits, dimmed, in the accent's own shape.
@@ -548,11 +548,11 @@ fn welcome(ui: &Ui, p: Paint) -> El {
         .child(super::hero::stage())
         .child(title(
             p,
-            tr("Welcome to Hex"),
+            tr("Welcome to DM Control"),
             Some(if ui.platform.caps.os == Os::Macos {
-                tr("Hold a key, say what you mean, and Hex types it wherever your cursor is. Your voice is transcribed on this Mac.")
+                tr("Hold a key, say what you mean, and DM Control types it wherever your cursor is. Your voice is transcribed on this Mac.")
             } else {
-                tr("Hold a key, say what you mean, and Hex types it wherever your cursor is. Your voice is transcribed on this computer.")
+                tr("Hold a key, say what you mean, and DM Control types it wherever your cursor is. Your voice is transcribed on this computer.")
             }),
         ))
 }
@@ -564,7 +564,7 @@ fn setup(ui: &Ui, p: Paint, view: &View) -> El {
         .key("setup")
         .gap(28.0)
         .child(if permissions {
-            title(p, tr("Let Hex hear you and type for you"), None)
+            title(p, tr("Let DM Control hear you and type for you"), None)
         } else if view
             .rows
             .iter()
@@ -572,7 +572,7 @@ fn setup(ui: &Ui, p: Paint, view: &View) -> El {
         {
             title(
                 p,
-                tr("Let Hex hear you"),
+                tr("Let DM Control hear you"),
                 Some(tr(
                     "Windows has the microphone turned off for desktop apps.",
                 )),
@@ -582,7 +582,7 @@ fn setup(ui: &Ui, p: Paint, view: &View) -> El {
                 p,
                 tr("Download a speech model"),
                 Some(tr(
-                    "Hex transcribes on this computer, so it needs a local model first.",
+                    "DM Control transcribes on this computer, so it needs a local model first.",
                 )),
             )
         })
@@ -594,7 +594,7 @@ fn setup(ui: &Ui, p: Paint, view: &View) -> El {
             vec![super::controls::note(
                 "copy",
                 tr(
-                    "Quit and reopen Hex to finish setup. macOS applies some permissions only after a restart.",
+                    "Quit and reopen DM Control to finish setup. macOS applies some permissions only after a restart.",
                 ),
                 p.muted(),
             )],
@@ -618,12 +618,12 @@ fn setup_row(ui: &Ui, p: Paint, row: Row) -> El {
                         .into()
                 }
                 ItemStatus::Denied => {
-                    tr("Turned off earlier. Switch Hex on in System Settings.").into()
+                    tr("Turned off earlier. Switch DM Control on in System Settings.").into()
                 }
                 ItemStatus::Waiting
                     if ui.platform.permissions.microphone == PermissionState::NeedsSettings =>
                 {
-                    tr("Switch Hex on in the list").into()
+                    tr("Switch DM Control on in the list").into()
                 }
                 _ => tr("Hears you only while you hold the shortcut").into(),
             },
@@ -633,11 +633,11 @@ fn setup_row(ui: &Ui, p: Paint, row: Row) -> El {
             &glyphs::CURSOR_TEXT,
             super::platform_settings::accessibility_name(ui.platform.accessibility_renamed),
             if row.status == ItemStatus::Restart {
-                tr("Turns on when Hex restarts").into()
+                tr("Turns on when DM Control restarts").into()
             } else if row.status == ItemStatus::Stale {
-                tr("An older Hex entry can keep this off").into()
+                tr("An older DM Control entry can keep this off").into()
             } else if waiting {
-                tr("Drag Hex into the list, or switch it on if it is there").into()
+                tr("Drag DM Control into the list, or switch it on if it is there").into()
             } else {
                 tr("Notices the shortcut and pastes your words in any app").into()
             },
@@ -730,7 +730,7 @@ fn try_it(ui: &Ui, p: Paint, tour: &Tour, view: &View, layer: &mut Vec<El>) -> E
     let (heading, body) = if waiting_for_model(view) {
         (
             tr("Almost ready"),
-            tr("Hex starts listening once the speech model has downloaded.").to_string(),
+            tr("DM Control starts listening once the speech model has downloaded.").to_string(),
         )
     } else if holds(ui) {
         (
@@ -758,9 +758,9 @@ fn try_it(ui: &Ui, p: Paint, tour: &Tour, view: &View, layer: &mut Vec<El>) -> E
         )
 }
 
-/// One quiet line under the practice field: the microphone Hex records
+/// One quiet line under the practice field: the microphone DM Control records
 /// from, as a small menu of every input, with its live level, and a short
-/// warning when that microphone gives Hex nothing.
+/// warning when that microphone gives DM Control nothing.
 fn microphone(ui: &Ui, p: Paint, tour: &Tour, layer: &mut Vec<El>) -> El {
     let listed = ui.microphones.as_ref().ok();
     let off = listed.and_then(|devices| devices.off_with_lid_closed.as_deref());
@@ -771,7 +771,7 @@ fn microphone(ui: &Ui, p: Paint, tour: &Tour, layer: &mut Vec<El>) -> El {
     let in_use = saved
         .or(listed.and_then(|devices| devices.system_default.as_deref()))
         .or(off);
-    // With nothing else to fall back to, Hex records the closed lid's
+    // With nothing else to fall back to, DM Control records the closed lid's
     // switched-off microphone.
     let lid_closed = off.is_some() && in_use == off;
     let silent = tour.mic.silent.as_ref() == Some(&ui.settings.microphone);
@@ -854,7 +854,7 @@ pub(super) fn mic_trigger(p: Paint, name: &str, level: f32, warned: bool, open: 
     }
 }
 
-/// The short warning beside the microphone when it gives Hex nothing.
+/// The short warning beside the microphone when it gives DM Control nothing.
 pub(super) fn mic_warning(p: Paint, warning: &str) -> El {
     text(warning)
         .key("warning")
@@ -866,7 +866,7 @@ pub(super) fn mic_warning(p: Paint, warning: &str) -> El {
 
 const MIC_LEVEL: f32 = 14.0;
 
-/// Three short bars, as tall as Hex hears it.
+/// Three short bars, as tall as DM Control hears it.
 pub(super) fn mic_bars(p: Paint, level: f32, tint: Color) -> El {
     const WEIGHTS: [f32; 3] = [0.6, 1.0, 0.75];
     let mut bars = row()
@@ -907,13 +907,13 @@ fn practice_hint(ui: &Ui, p: Paint, view: &View, shortcut: &str) -> El {
     if view.reopen {
         return line
             .child(hint(
-                tr("Hex needs to reopen before it can hear the shortcut."),
+                tr("DM Control needs to reopen before it can hear the shortcut."),
                 p.muted(),
             ))
             .child(button(
                 p,
                 "tour-reopen",
-                tr("Reopen Hex"),
+                tr("Reopen DM Control"),
                 ButtonKind::Secondary,
                 |ui: &mut Ui, _| input(ui, Input::Reopen),
             ));
@@ -958,7 +958,7 @@ fn practice_hint(ui: &Ui, p: Paint, view: &View, shortcut: &str) -> El {
         ),
         Practice::NothingHeard => (
             false,
-            tr("Hex did not catch any words. Speak a little closer, or pick another microphone below.").into(),
+            tr("DM Control did not catch any words. Speak a little closer, or pick another microphone below.").into(),
             p.muted(),
         ),
         Practice::Failed => (
@@ -970,7 +970,7 @@ fn practice_hint(ui: &Ui, p: Paint, view: &View, shortcut: &str) -> El {
             return line.child(allowed(
                 p,
                 "landed",
-                tr("That's it. Hex pastes wherever your cursor is, in any app."),
+                tr("That's it. DM Control pastes wherever your cursor is, in any app."),
             ));
         }
     };
@@ -1018,15 +1018,15 @@ fn done(ui: &Ui, p: Paint, view: &View) -> El {
     ));
     let send_off = match ui.platform.caps.os {
         Os::Macos => tr_fill(
-            "Hex waits in the menu bar. Use {} in any app to dictate.",
+            "DM Control waits in the menu bar. Use {} in any app to dictate.",
             &shortcut,
         ),
         Os::Windows => tr_fill(
-            "Hex waits in the system tray. Use {} in any app to dictate.",
+            "DM Control waits in the system tray. Use {} in any app to dictate.",
             &shortcut,
         ),
         Os::Linux => tr_fill(
-            "Hex keeps running after you close this window. Use {} in any app to dictate.",
+            "DM Control keeps running after you close this window. Use {} in any app to dictate.",
             &shortcut,
         ),
     };
@@ -1065,7 +1065,7 @@ fn done(ui: &Ui, p: Paint, view: &View) -> El {
     } else {
         (
             tr("Almost ready"),
-            tr("Hex starts listening once the speech model has downloaded.").to_string(),
+            tr("DM Control starts listening once the speech model has downloaded.").to_string(),
         )
     };
     col()
@@ -1324,7 +1324,10 @@ mod tests {
         flow.on(Input::Skip);
         let view = flow.view();
         assert_eq!(view.step, Step::Done);
-        assert!(!view.dictation_ready, "Done must not claim Hex is ready");
+        assert!(
+            !view.dictation_ready,
+            "Done must not claim DM Control is ready"
+        );
         assert!(done_shows_progress(&view));
 
         let ready = crate::desktop::onboarding::SetupStatus {

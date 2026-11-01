@@ -1,4 +1,18 @@
 <!-- tallow -->
+# DM Control personal fork
+
+This checkout is the owner's personal fork of Hex. The app is DM Control,
+bundle ID `mezenin.dm-control`, with separate `dm-control` data and config
+folders. Upstream self-updates are disabled. Preserve the original Hex
+installation and its permissions. The upstream release and signing rules below
+describe the original project's infrastructure; do not publish to it.
+
+The added macOS Voice control feature is in Labs, off by default. Its default
+wake phrase is `Hello Hex` and can be changed to 2–5 English words. It shares
+the existing audio owner, gives dictation priority, and executes only the closed
+local command grammar. Digital Light uses its existing Hyper-1/Hyper-2 hotkeys.
+See `docs/features/voice-control.md` for implementation and observed checks.
+
 # Hex Agent Guide
 
 ## Private Kit Tool
